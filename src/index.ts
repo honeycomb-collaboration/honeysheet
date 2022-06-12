@@ -1,0 +1,1 @@
+export { SpreadSheet, ISpreadSheet} from './core/spreadsheet'
