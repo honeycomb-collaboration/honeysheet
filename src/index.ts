@@ -1,1 +1,2 @@
-export { SpreadSheet, ISpreadSheet} from './core/spreadsheet'
+export { SpreadSheet } from './core/spreadsheet';
+export type { ISpreadSheet } from './core/spreadsheet';

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spreadsheet Web</title>
+</head>
+<body>
+    <script type="module">
+        import { Spreadsheet } from "./src/index.ts"
+        const opts  = {
+            spreadSheetUrl: '',
+            name: '我的电子表格'
+        }
+        const ss = new Spreadsheet(opts)
+    </script>
+</body>
+</html>

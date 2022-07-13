@@ -1,0 +1,52 @@
+{
+  "name": "spreadsheet-web",
+  "version": "0.0.1",
+  "repository": "git@github.com:OnlineCollaboration/spreadsheet-web.git",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --watch",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "release": "vitest run && vite build && tsc"
+  },
+  "dependencies": {
+    "nanoid": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.12",
+    "@typescript-eslint/eslint-plugin": "^5.14.0",
+    "@typescript-eslint/parser": "^5.14.0",
+    "dataloader": "^2.0.0",
+    "eslint": "^8.11.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "lint-staged": "^12.3.5",
+    "prettier": "^2.5.1",
+    "typescript": "^4.6.2",
+    "vite": "^2.8.6",
+    "vite-plugin-dts": "^0.9.9",
+    "vitest": "^0.6.0"
+  },
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.cjs.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint --fix",
+      "prettier --ignore-unknown --write",
+      "bash -c tsc --noEmit"
+    ]
+  },
+  "peerDependencies": {
+    "c8": "^7.11.0"
+  }
+}

@@ -1,0 +1,14 @@
+{
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": false,
+    "singleQuote": true,
+    "quoteProps": "as-needed",
+    "rangeStart": 0,
+    "rangeEnd": 999999,
+    "requirePragma": false,
+    "insertPragma": false,
+    "endOfLine": "auto",
+    "printWidth": 100,
+    "trailingComma": "all"
+}
