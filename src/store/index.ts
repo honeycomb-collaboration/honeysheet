@@ -1,26 +1,34 @@
-import { HeadDataType, BodyDataType } from '../../types/data'
+import { HeadDataTypes, BodyDataType } from '../../types/data'
 import { Logger } from "../tools/logger"
+import { Options } from '../../types/options'
 
-export type StoreOptsType = {
-    headData: HeadDataType,
-    bodyData: BodyDataType,
+export type SheetStore = {
+    headData: HeadDataTypes | [] // 内存中的表格数据
+    bodyData: BodyDataType | []
 }
+
 export class Store{
-    headData: HeadDataType // 内存中的表格数据
-    bodyData: BodyDataType
-    sheets: {} // sheets的配置数据
-    constructor(opts: StoreOptsType){
-        this.headData = opts.headData
-        this.bodyData = opts.bodyData
-        this.sheets = {}
+    sheets: Map<string,SheetStore> // sheets的配置数据
+    constructor(opts: Options){
         Logger.info('Store init')
+        for(let i=0,j=opts.sheets.length; i<j; i++){
+            if(opts.sheets.id)
+        }
     }
 
     /**
      * 初始化并返回 sheets 的配置数据
      * @returns 
      */
-    getSheets(){
+    getSheetsData(){
+        return []
+    }
+
+    /**
+     * 返回某个 sheet 的配置数据
+     * @returns 
+     */
+    getSheetData(sheetID: string){
         return []
     }
 }
