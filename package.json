@@ -9,21 +9,21 @@
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@honeycomb-co/connection": "^0.0.7",
+    "@honeycomb-co/connection": "^0.0.9",
     "nanoid": "^4.0.0"
   },
   "devDependencies": {
-    "@types/node": "^18.7.23",
-    "@typescript-eslint/eslint-plugin": "^5.38.1",
-    "@typescript-eslint/parser": "^5.38.1",
-    "eslint": "^8.24.0",
-    "eslint-config-prettier": "^8.5.0",
+    "@types/node": "^18.11.18",
+    "@typescript-eslint/eslint-plugin": "^5.48.0",
+    "@typescript-eslint/parser": "^5.48.0",
+    "eslint": "^8.31.0",
+    "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "lint-staged": "^13.0.3",
-    "prettier": "^2.5.1",
-    "typescript": "^4.8.4",
-    "vite": "^3.1.3",
-    "vitest": "^0.23.4"
+    "lint-staged": "^13.1.0",
+    "prettier": "^2.8.1",
+    "typescript": "^4.9.4",
+    "vite": "^4.0.4",
+    "vitest": "^0.26.3"
   },
   "lint-staged": {
     "*.{js,ts}": [
