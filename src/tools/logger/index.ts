@@ -1,35 +1,33 @@
-export class Logger{
-    static trace(message: string, ...args: any[]) {
+export class Logger {
+    static trace(message: string, ...args: unknown[]) {
         console.log(message, ...args)
     }
 
-    static debug(message: string, ...args: any[]) {
-        console.log(message, ...args)
-        debugger
-    }
-
-    static log(message: string, ...args: any[]) {
+    static debug(message: string, ...args: unknown[]) {
         console.log(message, ...args)
     }
 
-    static info(message: string, ...args: any[]) {
+    static log(message: string, ...args: unknown[]) {
         console.log(message, ...args)
     }
 
-    static warn(message: string, ...args: any[]) {
+    static info(message: string, ...args: unknown[]) {
+        console.log(message, ...args)
+    }
+
+    static warn(message: string, ...args: unknown[]) {
         console.warn(message, ...args)
     }
 
-    static warning(message: string, ...args: any[]) {
+    static warning(message: string, ...args: unknown[]) {
         console.log(message, ...args)
     }
 
-    static error(message: string, ...args: any[]) {
+    static error(message: string, ...args: unknown[]) {
         console.error(message, ...args)
     }
 
-    static fatal(message: string, ...args: any[]) {
+    static fatal(message: string, ...args: unknown[]) {
         console.log(message, ...args)
     }
-
 }

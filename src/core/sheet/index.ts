@@ -1,9 +1,10 @@
-import { Logger } from "../../tools/logger"
+import { Logger } from '../../tools/logger'
+import { SheetOptions } from '../../../types/options'
 
 // 是否激活
-export enum SheetStatus{
+export enum SheetStatus {
     Active = 1,
-    UnActive = 0
+    UnActive = 0,
 }
 
 export type SheetOptType = {
@@ -12,28 +13,36 @@ export type SheetOptType = {
     status: SheetStatus
 }
 
-export class Sheet{
+export class Sheet {
     id: string
     name: string
-    status: SheetStatus 
-    constructor(opt: SheetOptType){
+    status: SheetStatus
+    constructor(opt: SheetOptType) {
         this.id = opt.id
         this.name = opt.name
         this.status = opt.status
         // something init
-        Logger.info('初始化 sheet=',opt.name)
+        Logger.info('初始化 sheet=', opt.name)
     }
 
-    create(){
+    create() {
         // todo 继续常见行对象 、列对象
-
     }
 
-    draw(){
+    draw() {
         // todo 绘制当前 sheet。
     }
-    
-    destroy(){
 
+    destroy() {
+        // TODO
     }
+}
+
+export function initSheet(options: SheetOptions): Sheet {
+    Logger.debug('TODO', options)
+    return new Sheet({
+        id: '',
+        name: '',
+        status: SheetStatus.UnActive,
+    })
 }

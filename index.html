@@ -7,13 +7,15 @@
     <title>Spreadsheet Web</title>
 </head>
 <body>
+    <div id="sheet"></div>
     <script type="module">
-        import { Spreadsheet } from "./src/index.ts"
-        const opts  = {
-            spreadSheetUrl: '',
+        import { Spreadsheet } from "src"
+
+        const ss = new Spreadsheet({
+            container: 'sheet',
+            serverHost: "localhost:9898",
             name: '我的电子表格'
-        }
-        const ss = new Spreadsheet(opts)
+        })
     </script>
 </body>
 </html>
