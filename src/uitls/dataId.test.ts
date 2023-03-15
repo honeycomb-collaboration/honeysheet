@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { getFirstDataId, nextDataId, validDataId } from './dataId'
 
-describe('id', function () {
+describe('dataId', function () {
     it('getFirstDataId() starts from a single character', function () {
         expect(getFirstDataId()).toHaveLength(1)
     })

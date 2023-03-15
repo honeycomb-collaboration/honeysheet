@@ -1,12 +1,12 @@
-import { Logger } from '../../tools/logger'
+import { Logger } from '../../tools'
 import { Sheet } from '../sheet'
-import { Tools } from 'src/tools'
 import { Options } from '../../../types/options'
-import { Exception } from 'src/tools/exception'
+import { Exception } from 'src/tools'
 import { getConnection } from '../../websocket'
 import { Canvas2dRenderer, IRenderer } from '../renderer'
 import { Destroyable } from '../interfaces/Destroyable'
 import { deleteAllKeys } from '../../uitls/desturct'
+import { createUniqueID } from '../../uitls/randomId'
 
 export interface ISpreadSheet {
     id: string
@@ -21,7 +21,7 @@ export class Spreadsheet implements ISpreadSheet, Destroyable {
     private readonly renderer: IRenderer
     constructor(opts: Options) {
         // 初始化: 配置参数、准备一些全局变量的值
-        this.id = opts.id || Tools.CreateUniqueID()
+        this.id = opts.id || createUniqueID('honey')
         const container = document.getElementById(opts.container)
         if (!container) {
             Logger.error('Init Spreadsheet fail, dom element not found')

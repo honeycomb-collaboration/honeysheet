@@ -1,7 +1,8 @@
-import { Logger } from '../../tools/logger'
+import { Logger } from '../../tools'
 import { SheetOptions } from '../../../types/options'
 import { ICell } from '../cell'
 import { map2dArray } from '../../uitls/2dArray'
+import { createUniqueID } from '../../uitls/randomId'
 
 export class Sheet {
     public readonly id: string
@@ -9,7 +10,7 @@ export class Sheet {
     public readonly cells: ICell[][]
 
     constructor(options: SheetOptions) {
-        this.id = options.id || `NewSheetId` // todo generate new sheet id
+        this.id = options.id || createUniqueID('sheet')
         this.name = options.name || `NewSheetName` // todo new sheet name should be required
         this.cells = options.cells
             ? map2dArray(options.cells, (item) => {
