@@ -1,48 +1,33 @@
 import { Logger } from '../../tools/logger'
 import { SheetOptions } from '../../../types/options'
-
-// 是否激活
-export enum SheetStatus {
-    Active = 1,
-    UnActive = 0,
-}
-
-export type SheetOptType = {
-    id: string
-    name: string
-    status: SheetStatus
-}
+import { ICell } from '../cell'
+import { map2dArray } from '../../uitls/2dArray'
 
 export class Sheet {
-    id: string
-    name: string
-    status: SheetStatus
-    constructor(opt: SheetOptType) {
-        this.id = opt.id
-        this.name = opt.name
-        this.status = opt.status
+    public readonly id: string
+    public readonly name: string
+    public readonly cells: ICell[][]
+
+    constructor(options: SheetOptions) {
+        this.id = options.id || `NewSheetId` // todo generate new sheet id
+        this.name = options.name || `NewSheetName` // todo new sheet name should be required
+        this.cells = options.cells
+            ? map2dArray(options.cells, (item) => {
+                  if (typeof item === 'string' || typeof item === 'number') {
+                      return { v: item }
+                  }
+                  return item
+              })
+            : []
         // something init
-        Logger.info('初始化 sheet=', opt.name)
+        Logger.info('初始化 sheet=', options.name)
     }
 
     create() {
         // todo 继续常见行对象 、列对象
     }
 
-    draw() {
-        // todo 绘制当前 sheet。
-    }
-
     destroy() {
         // TODO
     }
-}
-
-export function initSheet(options: SheetOptions): Sheet {
-    Logger.debug('TODO', options)
-    return new Sheet({
-        id: '',
-        name: '',
-        status: SheetStatus.UnActive,
-    })
 }

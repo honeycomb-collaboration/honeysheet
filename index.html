@@ -1,21 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spreadsheet Web</title>
-</head>
-<body>
-    <div id="sheet"></div>
-    <script type="module">
-        import { Spreadsheet } from "src"
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Honeycomb Spreadsheet</title>
+    </head>
+    <body>
+        <div id="sheet"></div>
+        <script type="module">
+            import { Spreadsheet } from 'src'
 
-        const ss = new Spreadsheet({
-            container: 'sheet',
-            serverHost: "localhost:9898",
-            name: '我的电子表格'
-        })
-    </script>
-</body>
+            const ss = new Spreadsheet({
+                container: 'sheet',
+                // serverHost: 'localhost:9898',
+                name: '我的电子表格',
+                sheets: [
+                    {
+                        cells: [
+                            [1, 2, 3],
+                            [4, 5, 6],
+                            [7, 8, 9],
+                        ],
+                    },
+                ],
+            })
+        </script>
+    </body>
 </html>

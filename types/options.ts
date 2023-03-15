@@ -1,7 +1,8 @@
+import { DCell } from '../src/core/cell'
+
 /**
  * 可配置参数
  */
-
 // 授权相关配置：读、写、复制、评论
 enum authorizationOptions {
     READ = 'READ',
@@ -12,13 +13,13 @@ enum authorizationOptions {
 
 export type SheetOptions = {
     id?: string // Spreadsheet ID
-    name: string // Spreadsheet 名称
-    columnNums: number // 默认列数
-    rowNums: number // 默认行数
-    columnWidth: number // 默认列宽
-    rowHeight: number // 默认行高
-    fontSize: number // 默认字体大小
-    authorization: authorizationOptions // 权限配置
+    name?: string // Spreadsheet 名称
+    columnNums?: number // 默认列数
+    rowNums?: number // 默认行数
+    columnWidth?: number // 默认列宽
+    rowHeight?: number // 默认行高
+    authorization?: authorizationOptions // 权限配置
+    cells?: DCell[][]
 }
 
 export type Options = {
