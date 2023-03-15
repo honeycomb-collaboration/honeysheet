@@ -1,4 +1,4 @@
-import { DCell } from '../src/core/cell'
+import { ICell } from '../src/core/cell'
 
 /**
  * 可配置参数
@@ -19,7 +19,7 @@ export type SheetOptions = {
     columnWidth?: number // 默认列宽
     rowHeight?: number // 默认行高
     authorization?: authorizationOptions // 权限配置
-    cells?: DCell[][]
+    cells?: (number | string | ICell)[][]
 }
 
 export type Options = {

@@ -71,20 +71,20 @@ IdCharList.forEach((char, index) => {
 })
 
 // /[a-zA-Z0-9]+/
-export type Id = string
+export type DataId = string
 
-export function validId<T extends Id>(id: T): T {
+export function validDataId<T extends DataId>(id: T): T {
     if (id === '' || /[^a-zA-Z0-9]/.test(id)) {
         throw new Error('validId fail, bad id format ' + id)
     }
     return id
 }
 
-export function getFirstId(): Id {
+export function getFirstDataId(): DataId {
     return IdCharList[0]
 }
 
-export function nextId(currentId: Id): Id {
+export function nextDataId(currentId: DataId): DataId {
     const chars = currentId.split('') as IdCharacter[]
     const newChars = []
     let overflow = false

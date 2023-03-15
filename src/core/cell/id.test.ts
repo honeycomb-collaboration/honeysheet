@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getRcIdByCellId } from './cell'
+import { getRcIdByCellId } from './id'
 
 describe('cell id', function () {
     it('getRcIdByCellId() ', function () {
