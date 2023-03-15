@@ -1,25 +1,34 @@
 import { Logger } from '../../tools'
-import { Sheet } from '../sheet'
-import { Options } from '../../../types/options'
+import { Sheet, SheetOptions } from '../sheet'
 import { Exception } from 'src/tools'
 import { getConnection } from '../../websocket'
 import { Canvas2dRenderer, IRenderer } from '../renderer'
 import { Destroyable } from '../interfaces/Destroyable'
 import { deleteAllKeys } from '../../uitls/desturct'
 import { createUniqueID } from '../../uitls/randomId'
+import { AuthorizationOption } from '../constant'
 
-export interface ISpreadSheet {
-    id: string
-    name: string
+export type SpreadSheetOptions = {
+    container: string // 容器 querySelector 参数
+    id?: string // Spreadsheet ID
+    name?: string // Spreadsheet 名称
+    columnNums?: number // 默认列数
+    rowNums?: number // 默认行数
+    columnWidth?: number // 默认列宽
+    rowHeight?: number // 默认行高
+    fontSize?: number // 默认字体大小
+    authorization?: AuthorizationOption[] // 权限配置
+    sheets?: SheetOptions[] // sheet 页配置
+    serverHost?: string // 服务主机
 }
 
-export class Spreadsheet implements ISpreadSheet, Destroyable {
+export class Spreadsheet implements Destroyable {
     id: string
     name: string
     sheets: Sheet[]
     container: HTMLElement
     private readonly renderer: IRenderer
-    constructor(opts: Options) {
+    constructor(opts: SpreadSheetOptions) {
         // 初始化: 配置参数、准备一些全局变量的值
         this.id = opts.id || createUniqueID('honey')
         const container = document.getElementById(opts.container)
