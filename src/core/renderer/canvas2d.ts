@@ -1,7 +1,6 @@
 import { IRenderer } from './interface'
 import { deleteAllKeys } from '../../uitls/desturct'
-import { Sheet } from '../sheet'
-import { forEach2dArray } from '../../uitls/2dArray'
+import { IterateeResult, Sheet } from '../sheet'
 import { Logger } from '../../tools'
 
 const RowHeight = 20
@@ -28,6 +27,7 @@ export class Canvas2dRenderer implements IRenderer {
     }
 
     public resize(container: HTMLElement): boolean {
+        Logger.debug('resize called.')
         const scale = Math.max(window.devicePixelRatio, 2) // 2x scale at least
         const width = container.clientWidth
         const height = container.clientHeight
@@ -56,17 +56,20 @@ export class Canvas2dRenderer implements IRenderer {
     }
 
     render(sheet: Sheet): void {
-        Logger.trace('render called.')
-        const cells = sheet.cells
+        Logger.debug('render called.')
         const ctx = this.canvas.getContext('2d')
         if (!ctx) {
             throw new Error('canvas context null')
         }
 
+        const width = this.canvas.width
+        const height = this.canvas.height
+
         // clear
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        ctx.clearRect(0, 0, width, height)
 
         // scale
+        ctx.resetTransform()
         ctx.scale(this.scale, this.scale)
 
         // text config
@@ -74,9 +77,17 @@ export class Canvas2dRenderer implements IRenderer {
         ctx.textBaseline = 'middle'
 
         // loop draw cells
-        forEach2dArray(cells, (item, rowIndex, columnIndex) => {
+        sheet.iterateCellGrid((rowIndex, columnIndex, cell) => {
             const x = columnIndex * ColumnWidth + 1
             const y = rowIndex * RowHeight + 1
+
+            if (x > width) {
+                return IterateeResult.NextRow
+            }
+
+            if (y > height) {
+                return IterateeResult.Break
+            }
 
             // border
             ctx.beginPath()
@@ -91,7 +102,7 @@ export class Canvas2dRenderer implements IRenderer {
             // cell text
             const textX = x + CellXPadding
             const textY = y + RowHeight / 2
-            ctx.fillText(String(item.v), textX, textY)
+            cell && ctx.fillText(String(cell.v), textX, textY)
         })
     }
 }

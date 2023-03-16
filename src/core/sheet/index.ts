@@ -22,6 +22,18 @@ export type SheetOptions = {
     cells?: CellRecord[]
 }
 
+export enum IterateeResult {
+    Continue, // 继续遍历
+    NextColumn, // 跳转下一列
+    NextRow, // 跳转下一行
+    Break, // 终止遍历
+}
+export type Iteratee = (
+    rowIndex: number,
+    columnIndex: number,
+    cell?: ICell,
+) => IterateeResult | undefined
+
 export class Sheet implements Destroyable {
     public readonly id: string
     public readonly name: string
@@ -56,16 +68,20 @@ export class Sheet implements Destroyable {
         })
     }
 
-    public get cells(): ICell[][] {
-        const result: ICell[][] = []
-        this.rowIds.forEach((rowId) => {
-            const row: ICell[] = []
-            this.columnIds.forEach((columnId) => {
-                row.push(this.cellMap.get(`${columnId}_${rowId}`) || { v: '' })
-            })
-            result.push(row)
-        })
-        return result
+    public iterateCellGrid(iteratee: Iteratee): void {
+        for (let rowIndex = 0; rowIndex < this.rowIds.length; rowIndex++) {
+            const rowId = this.rowIds[rowIndex]
+            for (let columnIndex = 0; columnIndex < this.columnIds.length; columnIndex++) {
+                const columnId = this.columnIds[columnIndex]
+                const cell = this.cellMap.get(`${columnId}_${rowId}`)
+                const result = iteratee(rowIndex, columnIndex, cell)
+                if (result === IterateeResult.Break) {
+                    return
+                } else if (result === IterateeResult.NextRow) {
+                    break
+                }
+            }
+        }
     }
 
     public setCellGrid(data: (number | string)[][]): void {

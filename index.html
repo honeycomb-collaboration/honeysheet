@@ -21,11 +21,11 @@
                     },
                 ],
             })
-            ss.sheets[0].setCellGrid([
-                [1, 2, 3],
-                [4, 5, 6],
-                [7, 8, 9],
-            ])
+            ss.sheets[0].setCellGrid(
+                Array.from({ length: 1000 }).map(() =>
+                    Array.from({ length: 1000 }).map(() => Math.trunc(1000 * Math.random())),
+                ),
+            )
             ss.renderCurrentSheet()
         </script>
     </body>
