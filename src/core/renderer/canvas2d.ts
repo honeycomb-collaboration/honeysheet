@@ -2,6 +2,7 @@ import { IRenderer } from './interface'
 import { deleteAllKeys } from '../../uitls/desturct'
 import { Sheet } from '../sheet'
 import { forEach2dArray } from '../../uitls/2dArray'
+import { Logger } from '../../tools'
 
 const RowHeight = 20
 const ColumnWidth = 80
@@ -19,29 +20,51 @@ export class Canvas2dRenderer implements IRenderer {
     constructor(container: HTMLElement) {
         this.canvas.style.display = 'block'
         container.appendChild(this.canvas)
+        this.resize(container)
     }
 
     public destroy() {
         deleteAllKeys(this)
     }
 
-    public resize(container: HTMLElement) {
+    public resize(container: HTMLElement): boolean {
         const scale = Math.max(window.devicePixelRatio, 2) // 2x scale at least
         const width = container.clientWidth
         const height = container.clientHeight
-        this.canvas.style.width = width + 'px'
-        this.canvas.style.height = height + 'px'
-        this.canvas.width = width * scale
-        this.canvas.height = height * scale
-        this.scale = scale
+        let changed = false
+        if (width + 'px' !== this.canvas.style.width) {
+            this.canvas.style.width = width + 'px'
+            changed = true
+        }
+        if (height + 'px' !== this.canvas.style.height) {
+            this.canvas.style.height = height + 'px'
+            changed = true
+        }
+        if (width * scale !== this.canvas.width) {
+            this.canvas.width = width * scale
+            changed = true
+        }
+        if (height * scale !== this.canvas.height) {
+            this.canvas.height = height * scale
+            changed = true
+        }
+        if (scale !== this.scale) {
+            this.scale = scale
+            changed = true
+        }
+        return changed
     }
 
     render(sheet: Sheet): void {
+        Logger.trace('render called.')
         const cells = sheet.cells
         const ctx = this.canvas.getContext('2d')
         if (!ctx) {
             throw new Error('canvas context null')
         }
+
+        // clear
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
         // scale
         ctx.scale(this.scale, this.scale)

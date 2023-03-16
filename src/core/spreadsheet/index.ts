@@ -69,18 +69,24 @@ export class Spreadsheet implements Destroyable {
         }
 
         this.renderCurrentSheet()
-        window.addEventListener('resize', this.renderCurrentSheet)
+        window.addEventListener('resize', this.resizeRenderer)
     }
 
-    private readonly renderCurrentSheet = () => {
+    private readonly resizeRenderer = () => {
+        const changed = this.renderer.resize(this.container)
+        if (changed) {
+            this.renderCurrentSheet()
+        }
+    }
+
+    public renderCurrentSheet() {
         if (this.sheets[0]) {
-            this.renderer.resize(this.container)
             this.renderer.render(this.sheets[0])
         }
     }
 
     destroy() {
-        window.removeEventListener('resize', this.renderCurrentSheet)
+        window.removeEventListener('resize', this.resizeRenderer)
         deleteAllKeys(this)
     }
 }

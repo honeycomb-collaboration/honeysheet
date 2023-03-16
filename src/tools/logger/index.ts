@@ -1,6 +1,6 @@
 export class Logger {
     static trace(message: string, ...args: unknown[]) {
-        console.log(message, ...args)
+        console.trace(message, ...args)
     }
 
     static debug(message: string, ...args: unknown[]) {
