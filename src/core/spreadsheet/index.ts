@@ -7,18 +7,22 @@ import { Destroyable } from '../interfaces/Destroyable'
 import { deleteAllKeys } from '../../uitls/desturct'
 import { createUniqueID } from '../../uitls/randomId'
 import { AuthorizationOption } from '../constant'
+import { generateIds } from '../../uitls/dataId'
+
+const DefaultRowCount = 30
+const DefaultColumnCount = 10
 
 export type SpreadSheetOptions = {
     container: string // 容器 querySelector 参数
     id?: string // Spreadsheet ID
     name?: string // Spreadsheet 名称
-    columnNums?: number // 默认列数
-    rowNums?: number // 默认行数
+    columnCount?: number // 默认列数
+    rowCount?: number // 默认行数
     columnWidth?: number // 默认列宽
     rowHeight?: number // 默认行高
     fontSize?: number // 默认字体大小
     authorization?: AuthorizationOption[] // 权限配置
-    sheets?: SheetOptions[] // sheet 页配置
+    sheets?: Partial<SheetOptions>[] // sheet 页配置
     serverHost?: string // 服务主机
 }
 
@@ -43,7 +47,22 @@ export class Spreadsheet implements Destroyable {
         this.renderer = new Canvas2dRenderer(this.container)
         this.name = opts.name || `New Honeycomb Spreadsheet`
         Logger.info('创建电子表格 SpreadSheet=', this.name)
-        this.sheets = opts.sheets?.map((item) => new Sheet(item)) || []
+        this.sheets =
+            opts.sheets?.map((item, index) => {
+                const rowCount = opts.rowCount || DefaultRowCount
+                const columnCount = opts.columnCount || DefaultColumnCount
+
+                return new Sheet({
+                    name: item.name || `Sheet ${index}`,
+                    columnIds: item.columnIds || generateIds(columnCount),
+                    rowIds: item.rowIds || generateIds(rowCount),
+                    id: item.id,
+                    cells: item.cells,
+                    columnWidth: item.columnWidth || opts.columnWidth,
+                    rowHeight: item.rowHeight || opts.rowHeight,
+                    authorization: item.authorization,
+                })
+            }) || []
         Logger.info('初始化 SpreadSheet=', opts.name)
         if (opts.serverHost) {
             getConnection(opts.serverHost)

@@ -135,3 +135,13 @@ export function nextDataId(currentId: DataId): DataId {
 
     return newChars.join('')
 }
+
+export function generateIds(count: number, start = getFirstDataId()): DataId[] {
+    let latestId = start
+    const ids: DataId[] = [latestId]
+    for (let i = 1; i < count; i++) {
+        latestId = nextDataId(latestId) // maybe not call nextDataId
+        ids.push(latestId)
+    }
+    return ids
+}
