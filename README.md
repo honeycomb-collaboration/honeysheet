@@ -1,6 +1,9 @@
-# spreadsheet-web
-Online spreadsheet
+# Honeysheet
 
-# 初始化项目
+##  
 
-`pnpm install`
+```shell
+pnpm install
+
+pnpm dev
+```
