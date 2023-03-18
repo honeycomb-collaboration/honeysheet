@@ -1,10 +1,8 @@
-import { Logger } from '../../tools'
+import { Destroyable, Logger } from '../../tools'
 import { Sheet, SheetId, SheetOptions } from '../sheet'
 import { Exception } from 'src/tools'
 import { getConnection } from '../../websocket'
 import { Canvas2dRenderer, IRenderer } from '../renderer'
-import { Destroyable } from '../interfaces/Destroyable'
-import { deleteAllKeys } from '../../uitls/desturct'
 import { createUniqueID } from '../../uitls/randomId'
 import { AuthorizationOption } from '../constant'
 import { generateIds } from '../../uitls/dataId'
@@ -26,7 +24,7 @@ export type SpreadSheetOptions = {
     serverHost?: string // 服务主机
 }
 
-export class Spreadsheet implements Destroyable {
+export class Spreadsheet extends Destroyable {
     id: string
     name: string
     sheetMap = new Map<SheetId, Sheet>()
@@ -35,6 +33,7 @@ export class Spreadsheet implements Destroyable {
     private readonly renderer: IRenderer
 
     constructor(opts: SpreadSheetOptions) {
+        super()
         // 初始化: 配置参数、准备一些全局变量的值
         this.id = opts.id || createUniqueID('honey')
         const container = document.getElementById(opts.container)
@@ -95,9 +94,5 @@ export class Spreadsheet implements Destroyable {
 
     public renderCurrentSheet() {
         this.renderer.render(this.currentSheet)
-    }
-
-    destroy() {
-        deleteAllKeys(this)
     }
 }

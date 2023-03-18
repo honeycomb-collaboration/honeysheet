@@ -1,7 +1,6 @@
 import { IRenderer } from './interface'
-import { deleteAllKeys } from '../../uitls/desturct'
 import { IterateeResult, Sheet } from '../sheet'
-import { Logger } from '../../tools'
+import { Destroyable, Logger } from '../../tools'
 import { noop } from '../../uitls/noop'
 
 const RowHeight = 20
@@ -13,15 +12,16 @@ const CellXPadding = 2
 /**
  * Canvas 2d Renderer
  */
-export class Canvas2dRenderer implements IRenderer {
+export class Canvas2dRenderer extends Destroyable implements IRenderer {
     private scale = 1
     private readonly canvas = document.createElement('canvas')
     private refresh = noop
-    private scrollTop = 10
-    private scrollLeft = 10
+    private scrollTop = 0
+    private scrollLeft = 0
     private readonly handleResize: () => void
 
     constructor(container: HTMLElement) {
+        super()
         this.canvas.style.display = 'block'
         this.canvas.style.border = '1px solid lightgrey'
         container.appendChild(this.canvas)
@@ -32,46 +32,15 @@ export class Canvas2dRenderer implements IRenderer {
             }
         }
         window.addEventListener('resize', this.handleResize)
+        this.onDestroy(() => window.removeEventListener('resize', this.handleResize))
         this.canvas.addEventListener('wheel', this.handleWheel, {
             passive: false,
         })
+        this.onDestroy(() => this.canvas.removeEventListener('wheel', this.handleWheel))
         this.resize(container)
     }
 
-    public destroy() {
-        window.removeEventListener('resize', this.handleResize)
-        this.canvas.removeEventListener('wheel', this.handleWheel)
-        deleteAllKeys(this)
-    }
-
-    private readonly handleWheel = (event: WheelEvent) => {
-        if (event.ctrlKey) {
-            return
-        }
-
-        event.preventDefault()
-        switch (event.deltaMode) {
-            case WheelEvent.DOM_DELTA_PIXEL: {
-                this.scrollTop += event.deltaY
-                this.scrollLeft += event.deltaX
-                break
-            }
-            case WheelEvent.DOM_DELTA_LINE: {
-                this.scrollTop += event.deltaY * RowHeight
-                this.scrollLeft += event.deltaX * ColumnWidth
-                break
-            }
-            case WheelEvent.DOM_DELTA_PAGE: {
-                this.scrollTop += event.deltaY * this.canvas.height * 0.8
-                this.scrollLeft += event.deltaX * this.canvas.width * 0.8
-                break
-            }
-        }
-
-        this.refresh()
-    }
-
-    render(sheet: Sheet): void {
+    public render(sheet: Sheet): void {
         Logger.debug('render called.')
         const ctx = this.canvas.getContext('2d')
         if (!ctx) {
@@ -135,6 +104,33 @@ export class Canvas2dRenderer implements IRenderer {
 
         // create a refresher
         this.refresh = () => this.render(sheet)
+    }
+
+    private readonly handleWheel = (event: WheelEvent) => {
+        if (event.ctrlKey) {
+            return
+        }
+
+        event.preventDefault()
+        switch (event.deltaMode) {
+            case WheelEvent.DOM_DELTA_PIXEL: {
+                this.scrollTop += event.deltaY
+                this.scrollLeft += event.deltaX
+                break
+            }
+            case WheelEvent.DOM_DELTA_LINE: {
+                this.scrollTop += event.deltaY * RowHeight
+                this.scrollLeft += event.deltaX * ColumnWidth
+                break
+            }
+            case WheelEvent.DOM_DELTA_PAGE: {
+                this.scrollTop += event.deltaY * this.canvas.height * 0.8
+                this.scrollLeft += event.deltaX * this.canvas.width * 0.8
+                break
+            }
+        }
+
+        this.refresh()
     }
 
     private resize(container: HTMLElement): boolean {

@@ -1,8 +1,6 @@
-import { Logger } from '../../tools'
+import { Destroyable, Logger } from '../../tools'
 import { CellId, ICell } from '../cell'
 import { createUniqueID } from '../../uitls/randomId'
-import { Destroyable } from '../interfaces/Destroyable'
-import { deleteAllKeys } from '../../uitls/desturct'
 import { AuthorizationOption } from '../constant'
 import { RowId } from '../row'
 import { ColumnId } from '../column'
@@ -36,7 +34,7 @@ export type Iteratee = (
 
 export type SheetId = string
 
-export class Sheet implements Destroyable {
+export class Sheet extends Destroyable {
     public readonly id: SheetId
     public readonly name: string
     private readonly cellMap = new Map<CellId, ICell>()
@@ -46,6 +44,7 @@ export class Sheet implements Destroyable {
     private readonly rowHeight?: number // 默认行高
     private readonly authorization: Set<AuthorizationOption> // 权限配置
     constructor(options: SheetOptions) {
+        super()
         Logger.info('初始化 sheet=', options.name)
         this.name = options.name
         this.id = options.id || createUniqueID('sheet')
@@ -108,9 +107,5 @@ export class Sheet implements Destroyable {
                 `${this.columnIds[columnIndex]}_${this.rowIds[rowIndex]}` satisfies CellId
             this.cellMap.set(cellId, { v: item })
         })
-    }
-
-    destroy() {
-        deleteAllKeys(this)
     }
 }
