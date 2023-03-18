@@ -15,9 +15,12 @@ const CellXPadding = 2
 export class Canvas2dRenderer implements IRenderer {
     private scale = 1
     private readonly canvas = document.createElement('canvas')
+    private scrollTop = 10
+    private scrollLeft = 10
 
     constructor(container: HTMLElement) {
         this.canvas.style.display = 'block'
+        this.canvas.style.border = '1px solid lightgrey'
         container.appendChild(this.canvas)
         this.resize(container)
     }
@@ -78,13 +81,25 @@ export class Canvas2dRenderer implements IRenderer {
 
         // loop draw cells
         sheet.iterateCellGrid((rowIndex, columnIndex, cell) => {
-            const x = columnIndex * ColumnWidth + 1
-            const y = rowIndex * RowHeight + 1
+            const x = columnIndex * ColumnWidth + 1 - this.scrollLeft
+            const y = rowIndex * RowHeight + 1 - this.scrollTop
 
+            // skip left invisible area
+            if (x < -ColumnWidth) {
+                return IterateeResult.NextColumn
+            }
+
+            // skip top invisible area
+            if (y < -RowHeight) {
+                return IterateeResult.NextRow
+            }
+
+            // skip right invisible area
             if (x > width) {
                 return IterateeResult.NextRow
             }
 
+            // skip bottom invisible area
             if (y > height) {
                 return IterateeResult.Break
             }
