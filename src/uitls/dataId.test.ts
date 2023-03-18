@@ -1,26 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import { getFirstDataId, nextDataId, validDataId } from './dataId'
+import { generateIds, validDataId } from './dataId'
 
 describe('dataId', function () {
-    it('getFirstDataId() starts from a single character', function () {
-        expect(getFirstDataId()).toHaveLength(1)
-    })
-    it('getFirstDataId() should always starts from the same character', function () {
-        expect(getFirstDataId()).toBe(getFirstDataId())
-    })
-
     it('validDataId', function () {
-        expect(() => validDataId('')).toThrowError(/bad id/)
-        expect(() => validDataId('_')).toThrowError(/bad id/)
+        expect(validDataId(Number.MAX_SAFE_INTEGER)).toBe(Number.MAX_SAFE_INTEGER)
+        expect(validDataId(Number.MAX_SAFE_INTEGER + 1)).toBe(Number.MAX_SAFE_INTEGER + 1)
+        expect(() => validDataId(-1)).toThrowError(/bad id/)
+        expect(() => validDataId(1.2)).toThrowError(/bad id/)
     })
 
-    it('nextDataId() generate one character up on currentId', function () {
-        expect(nextDataId('a')).toBe('b')
-        expect(nextDataId('aa')).toBe('ab')
-        expect(nextDataId('aZ')).toBe('b0')
-        expect(nextDataId('daZ')).toBe('db0')
-        expect(nextDataId('Z')).toBe('00')
-        expect(nextDataId('ZZ')).toBe('000')
-        expect(() => nextDataId('_')).toThrowError(/bad id/)
+    it('generateIds', function () {
+        expect(generateIds(5)).toEqual([0, 1, 2, 3, 4])
+        expect(generateIds(5, 0)).toEqual([1, 2, 3, 4, 5])
+        expect(generateIds(5, 2)).toEqual([3, 4, 5, 6, 7])
+        expect(generateIds(0, 2)).toEqual([])
+        expect(() => generateIds(-1, 2)).toThrowError(/bad count/)
+        expect(() => generateIds(5, -2)).toThrowError(/bad id/)
     })
 })

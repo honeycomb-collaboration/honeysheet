@@ -5,7 +5,7 @@ import { validDataId } from '../../uitls/dataId'
 export type CellId = `${ColumnId}_${RowId}` // column id and row id concatenated
 
 export function getRcIdByCellId(id: CellId): { columnId: ColumnId; rowId: RowId } {
-    const [columnId, rowId] = id.split('_')
+    const [columnId, rowId] = id.split('_').map(Number)
 
     return {
         columnId: validDataId(columnId),
