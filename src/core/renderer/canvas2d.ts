@@ -16,28 +16,59 @@ const CellXPadding = 2
 export class Canvas2dRenderer implements IRenderer {
     private scale = 1
     private readonly canvas = document.createElement('canvas')
-    private refresher = noop
+    private refresh = noop
     private scrollTop = 10
     private scrollLeft = 10
-    private readonly resizeHandler: () => void
+    private readonly handleResize: () => void
 
     constructor(container: HTMLElement) {
         this.canvas.style.display = 'block'
         this.canvas.style.border = '1px solid lightgrey'
         container.appendChild(this.canvas)
-        this.resizeHandler = () => {
+        this.handleResize = () => {
             const changed = this.resize(container)
             if (changed) {
-                this.refresher()
+                this.refresh()
             }
         }
-        window.addEventListener('resize', this.resizeHandler)
+        window.addEventListener('resize', this.handleResize)
+        this.canvas.addEventListener('wheel', this.handleWheel, {
+            passive: false,
+        })
         this.resize(container)
     }
 
     public destroy() {
-        window.removeEventListener('resize', this.resizeHandler)
+        window.removeEventListener('resize', this.handleResize)
+        this.canvas.removeEventListener('wheel', this.handleWheel)
         deleteAllKeys(this)
+    }
+
+    private readonly handleWheel = (event: WheelEvent) => {
+        if (event.ctrlKey) {
+            return
+        }
+
+        event.preventDefault()
+        switch (event.deltaMode) {
+            case WheelEvent.DOM_DELTA_PIXEL: {
+                this.scrollTop += event.deltaY
+                this.scrollLeft += event.deltaX
+                break
+            }
+            case WheelEvent.DOM_DELTA_LINE: {
+                this.scrollTop += event.deltaY * RowHeight
+                this.scrollLeft += event.deltaX * ColumnWidth
+                break
+            }
+            case WheelEvent.DOM_DELTA_PAGE: {
+                this.scrollTop += event.deltaY * this.canvas.height * 0.8
+                this.scrollLeft += event.deltaX * this.canvas.width * 0.8
+                break
+            }
+        }
+
+        this.refresh()
     }
 
     render(sheet: Sheet): void {
@@ -103,7 +134,7 @@ export class Canvas2dRenderer implements IRenderer {
         })
 
         // create a refresher
-        this.refresher = () => this.render(sheet)
+        this.refresh = () => this.render(sheet)
     }
 
     private resize(container: HTMLElement): boolean {
