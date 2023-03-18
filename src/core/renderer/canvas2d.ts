@@ -2,6 +2,7 @@ import { IRenderer } from './interface'
 import { deleteAllKeys } from '../../uitls/desturct'
 import { IterateeResult, Sheet } from '../sheet'
 import { Logger } from '../../tools'
+import { noop } from '../../uitls/noop'
 
 const RowHeight = 20
 const ColumnWidth = 80
@@ -15,47 +16,28 @@ const CellXPadding = 2
 export class Canvas2dRenderer implements IRenderer {
     private scale = 1
     private readonly canvas = document.createElement('canvas')
+    private refresher = noop
     private scrollTop = 10
     private scrollLeft = 10
+    private readonly resizeHandler: () => void
 
     constructor(container: HTMLElement) {
         this.canvas.style.display = 'block'
         this.canvas.style.border = '1px solid lightgrey'
         container.appendChild(this.canvas)
+        this.resizeHandler = () => {
+            const changed = this.resize(container)
+            if (changed) {
+                this.refresher()
+            }
+        }
+        window.addEventListener('resize', this.resizeHandler)
         this.resize(container)
     }
 
     public destroy() {
+        window.removeEventListener('resize', this.resizeHandler)
         deleteAllKeys(this)
-    }
-
-    public resize(container: HTMLElement): boolean {
-        Logger.debug('resize called.')
-        const scale = Math.max(window.devicePixelRatio, 2) // 2x scale at least
-        const width = container.clientWidth
-        const height = container.clientHeight
-        let changed = false
-        if (width + 'px' !== this.canvas.style.width) {
-            this.canvas.style.width = width + 'px'
-            changed = true
-        }
-        if (height + 'px' !== this.canvas.style.height) {
-            this.canvas.style.height = height + 'px'
-            changed = true
-        }
-        if (width * scale !== this.canvas.width) {
-            this.canvas.width = width * scale
-            changed = true
-        }
-        if (height * scale !== this.canvas.height) {
-            this.canvas.height = height * scale
-            changed = true
-        }
-        if (scale !== this.scale) {
-            this.scale = scale
-            changed = true
-        }
-        return changed
     }
 
     render(sheet: Sheet): void {
@@ -119,5 +101,37 @@ export class Canvas2dRenderer implements IRenderer {
             const textY = y + RowHeight / 2
             cell && ctx.fillText(String(cell.v), textX, textY)
         })
+
+        // create a refresher
+        this.refresher = () => this.render(sheet)
+    }
+
+    private resize(container: HTMLElement): boolean {
+        Logger.debug('resize called.')
+        const scale = Math.max(window.devicePixelRatio, 2) // 2x scale at least
+        const width = container.clientWidth
+        const height = container.clientHeight
+        let changed = false
+        if (width + 'px' !== this.canvas.style.width) {
+            this.canvas.style.width = width + 'px'
+            changed = true
+        }
+        if (height + 'px' !== this.canvas.style.height) {
+            this.canvas.style.height = height + 'px'
+            changed = true
+        }
+        if (width * scale !== this.canvas.width) {
+            this.canvas.width = width * scale
+            changed = true
+        }
+        if (height * scale !== this.canvas.height) {
+            this.canvas.height = height * scale
+            changed = true
+        }
+        if (scale !== this.scale) {
+            this.scale = scale
+            changed = true
+        }
+        return changed
     }
 }

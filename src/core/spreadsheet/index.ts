@@ -83,7 +83,6 @@ export class Spreadsheet implements Destroyable {
         }
 
         this.renderCurrentSheet()
-        window.addEventListener('resize', this.resizeRenderer)
     }
 
     public get currentSheet(): Sheet {
@@ -99,14 +98,6 @@ export class Spreadsheet implements Destroyable {
     }
 
     destroy() {
-        window.removeEventListener('resize', this.resizeRenderer)
         deleteAllKeys(this)
-    }
-
-    private readonly resizeRenderer = () => {
-        const changed = this.renderer.resize(this.container)
-        if (changed) {
-            this.renderCurrentSheet()
-        }
     }
 }
