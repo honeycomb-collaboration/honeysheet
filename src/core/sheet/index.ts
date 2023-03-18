@@ -34,8 +34,10 @@ export type Iteratee = (
     cell?: ICell,
 ) => IterateeResult | undefined
 
+export type SheetId = string
+
 export class Sheet implements Destroyable {
-    public readonly id: string
+    public readonly id: SheetId
     public readonly name: string
     private readonly cellMap = new Map<CellId, ICell>()
     private readonly columnIds: ColumnId[]

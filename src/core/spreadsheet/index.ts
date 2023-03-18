@@ -1,5 +1,5 @@
 import { Logger } from '../../tools'
-import { Sheet, SheetOptions } from '../sheet'
+import { Sheet, SheetId, SheetOptions } from '../sheet'
 import { Exception } from 'src/tools'
 import { getConnection } from '../../websocket'
 import { Canvas2dRenderer, IRenderer } from '../renderer'
@@ -22,16 +22,18 @@ export type SpreadSheetOptions = {
     rowHeight?: number // 默认行高
     fontSize?: number // 默认字体大小
     authorization?: AuthorizationOption[] // 权限配置
-    sheets?: Partial<SheetOptions>[] // sheet 页配置
+    sheets: Partial<SheetOptions>[] // sheet 页配置
     serverHost?: string // 服务主机
 }
 
 export class Spreadsheet implements Destroyable {
     id: string
     name: string
-    sheets: Sheet[]
+    sheetMap = new Map<SheetId, Sheet>()
     container: HTMLElement
+    private currentSheetId: SheetId
     private readonly renderer: IRenderer
+
     constructor(opts: SpreadSheetOptions) {
         // 初始化: 配置参数、准备一些全局变量的值
         this.id = opts.id || createUniqueID('honey')
@@ -47,22 +49,34 @@ export class Spreadsheet implements Destroyable {
         this.renderer = new Canvas2dRenderer(this.container)
         this.name = opts.name || `New Honeycomb Spreadsheet`
         Logger.info('创建电子表格 SpreadSheet=', this.name)
-        this.sheets =
-            opts.sheets?.map((item, index) => {
-                const rowCount = opts.rowCount || DefaultRowCount
-                const columnCount = opts.columnCount || DefaultColumnCount
 
-                return new Sheet({
-                    name: item.name || `Sheet ${index}`,
-                    columnIds: item.columnIds || generateIds(columnCount),
-                    rowIds: item.rowIds || generateIds(rowCount),
-                    id: item.id,
-                    cells: item.cells,
-                    columnWidth: item.columnWidth || opts.columnWidth,
-                    rowHeight: item.rowHeight || opts.rowHeight,
-                    authorization: item.authorization,
-                })
-            }) || []
+        const sheets = opts.sheets.map((item, index) => {
+            const rowCount = opts.rowCount || DefaultRowCount
+            const columnCount = opts.columnCount || DefaultColumnCount
+
+            const sheet = new Sheet({
+                name: item.name || `Sheet ${index}`,
+                columnIds: item.columnIds || generateIds(columnCount),
+                rowIds: item.rowIds || generateIds(rowCount),
+                id: item.id,
+                cells: item.cells,
+                columnWidth: item.columnWidth || opts.columnWidth,
+                rowHeight: item.rowHeight || opts.rowHeight,
+                authorization: item.authorization,
+            })
+
+            if (this.sheetMap.has(sheet.id)) {
+                throw new Error('duplicate sheet id ' + sheet.id)
+            }
+            this.sheetMap.set(sheet.id, sheet)
+            return sheet
+        })
+
+        if (sheets.length === 0) {
+            throw new Error(`sheets array can't be empty`)
+        }
+        this.currentSheetId = sheets[0].id
+
         Logger.info('初始化 SpreadSheet=', opts.name)
         if (opts.serverHost) {
             getConnection(opts.serverHost)
@@ -72,21 +86,27 @@ export class Spreadsheet implements Destroyable {
         window.addEventListener('resize', this.resizeRenderer)
     }
 
-    private readonly resizeRenderer = () => {
-        const changed = this.renderer.resize(this.container)
-        if (changed) {
-            this.renderCurrentSheet()
+    public get currentSheet(): Sheet {
+        const sheet = this.sheetMap.get(this.currentSheetId)
+        if (!sheet) {
+            throw new Error('current Sheet undefined.')
         }
+        return sheet
     }
 
     public renderCurrentSheet() {
-        if (this.sheets[0]) {
-            this.renderer.render(this.sheets[0])
-        }
+        this.renderer.render(this.currentSheet)
     }
 
     destroy() {
         window.removeEventListener('resize', this.resizeRenderer)
         deleteAllKeys(this)
+    }
+
+    private readonly resizeRenderer = () => {
+        const changed = this.renderer.resize(this.container)
+        if (changed) {
+            this.renderCurrentSheet()
+        }
     }
 }

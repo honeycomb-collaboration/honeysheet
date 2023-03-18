@@ -21,7 +21,7 @@
                     },
                 ],
             })
-            ss.sheets[0].setCellGrid(
+            ss.currentSheet.setCellGrid(
                 Array.from({ length: 1000 }).map(() =>
                     Array.from({ length: 1000 }).map(() => Math.trunc(1000 * Math.random())),
                 ),
