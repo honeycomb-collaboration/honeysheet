@@ -8,6 +8,8 @@ const ColumnWidth = 80
 const FontSize = 14
 const LineHeight = 16
 const CellXPadding = 2
+const RightPadding = 120
+const BottomPadding = 60
 
 /**
  * Canvas 2d Renderer
@@ -17,7 +19,9 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
     private readonly canvas = document.createElement('canvas')
     private refresh = noop
     private scrollTop = 0
+    private maxScrollTop = 0
     private scrollLeft = 0
+    private maxScrollLeft = 0
     private readonly handleResize: () => void
 
     constructor(container: HTMLElement) {
@@ -47,11 +51,11 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
             throw new Error('canvas context null')
         }
 
-        const width = this.canvas.width
-        const height = this.canvas.height
+        const canvasWidth = this.canvas.width
+        const canvasHeight = this.canvas.height
 
         // clear
-        ctx.clearRect(0, 0, width, height)
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight)
 
         // scale
         ctx.resetTransform()
@@ -60,7 +64,14 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         // text config
         ctx.font = `${FontSize}px/${LineHeight}px Verdana`
         ctx.textBaseline = 'middle'
-
+        this.maxScrollLeft = Math.max(
+            sheet.columnIds.length * ColumnWidth + 1 - canvasWidth / this.scale + RightPadding,
+            0,
+        )
+        this.maxScrollTop = Math.max(
+            sheet.rowIds.length * RowHeight + 1 - canvasHeight / this.scale + BottomPadding,
+            0,
+        )
         // loop draw cells
         sheet.iterateCellGrid((rowIndex, columnIndex, cell) => {
             const x = columnIndex * ColumnWidth + 1 - this.scrollLeft
@@ -77,12 +88,12 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
             }
 
             // skip right invisible area
-            if (x > width) {
+            if (x > canvasWidth) {
                 return IterateeResult.NextRow
             }
 
             // skip bottom invisible area
-            if (y > height) {
+            if (y > canvasHeight) {
                 return IterateeResult.Break
             }
 
@@ -112,25 +123,34 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         }
 
         event.preventDefault()
+        let scrollTop = this.scrollTop
+        let scrollLeft = this.scrollLeft
         switch (event.deltaMode) {
             case WheelEvent.DOM_DELTA_PIXEL: {
-                this.scrollTop += event.deltaY
-                this.scrollLeft += event.deltaX
+                scrollTop += event.deltaY
+                scrollLeft += event.deltaX
                 break
             }
             case WheelEvent.DOM_DELTA_LINE: {
-                this.scrollTop += event.deltaY * RowHeight
-                this.scrollLeft += event.deltaX * ColumnWidth
+                scrollTop += event.deltaY * RowHeight
+                scrollLeft += event.deltaX * ColumnWidth
                 break
             }
             case WheelEvent.DOM_DELTA_PAGE: {
-                this.scrollTop += event.deltaY * this.canvas.height * 0.8
-                this.scrollLeft += event.deltaX * this.canvas.width * 0.8
+                scrollTop += event.deltaY * this.canvas.height * 0.8
+                scrollLeft += event.deltaX * this.canvas.width * 0.8
                 break
             }
         }
 
-        this.refresh()
+        scrollTop = Math.min(Math.max(scrollTop, 0), this.maxScrollTop)
+        scrollLeft = Math.min(Math.max(scrollLeft, 0), this.maxScrollLeft)
+
+        if (scrollLeft !== this.scrollLeft || scrollTop !== this.scrollTop) {
+            this.scrollLeft = scrollLeft
+            this.scrollTop = scrollTop
+            this.refresh()
+        }
     }
 
     private resize(container: HTMLElement): boolean {

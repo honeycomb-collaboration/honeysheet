@@ -38,8 +38,8 @@ export class Sheet extends Destroyable {
     public readonly id: SheetId
     public readonly name: string
     private readonly cellMap = new Map<CellId, ICell>()
-    private readonly columnIds: ColumnId[]
-    private readonly rowIds: RowId[]
+    public readonly columnIds: ColumnId[]
+    public readonly rowIds: RowId[]
     private readonly columnWidth?: number // 默认列宽
     private readonly rowHeight?: number // 默认行高
     private readonly authorization: Set<AuthorizationOption> // 权限配置

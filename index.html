@@ -7,7 +7,7 @@
         <title>Honeycomb Spreadsheet</title>
     </head>
     <body>
-        <div id="sheet"></div>
+        <div id="sheet" style="height: 95vh"></div>
         <script type="module">
             import { Spreadsheet } from 'src'
 
@@ -22,8 +22,8 @@
                 ],
             })
             ss.currentSheet.setCellGrid(
-                Array.from({ length: 1000 }).map(() =>
-                    Array.from({ length: 1000 }).map(() => Math.trunc(1000 * Math.random())),
+                Array.from({ length: 1000 }).map((_, row) =>
+                    Array.from({ length: 1000 }).map((_, column) => `R${row}_C${column}`),
                 ),
             )
             ss.renderCurrentSheet()
