@@ -1,10 +1,9 @@
 import { IRenderer } from './interface'
-import { IterateeResult, Sheet } from '../sheet'
+import { Sheet } from '../sheet'
 import { Destroyable, Logger } from '../../tools'
 import { noop } from '../../uitls/noop'
+import { ColumnWidth, RowHeight } from '../constant'
 
-const RowHeight = 20
-const ColumnWidth = 80
 const FontSize = 14
 const LineHeight = 16
 const CellXPadding = 2
@@ -64,54 +63,38 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         // text config
         ctx.font = `${FontSize}px/${LineHeight}px Verdana`
         ctx.textBaseline = 'middle'
-        this.maxScrollLeft = Math.max(
-            sheet.columnIds.length * ColumnWidth + 1 - canvasWidth / this.scale + RightPadding,
-            0,
-        )
+        this.maxScrollLeft = Math.max(sheet.width + 1 - canvasWidth / this.scale + RightPadding, 0)
         this.maxScrollTop = Math.max(
-            sheet.rowIds.length * RowHeight + 1 - canvasHeight / this.scale + BottomPadding,
+            sheet.height + 1 - canvasHeight / this.scale + BottomPadding,
             0,
         )
+        const startColumnIndex = sheet.getColumnIndex(this.scrollLeft)
+        const endColumnIndex = sheet.getColumnIndex(this.scrollLeft + canvasWidth)
+        const startRowIndex = sheet.getRowIndex(this.scrollTop)
+        const endRowIndex = sheet.getRowIndex(this.scrollTop + canvasHeight)
         // loop draw cells
-        sheet.iterateCellGrid((rowIndex, columnIndex, cell) => {
-            const x = columnIndex * ColumnWidth + 1 - this.scrollLeft
-            const y = rowIndex * RowHeight + 1 - this.scrollTop
+        sheet.iterateCellGrid(
+            { startRowIndex, endRowIndex, startColumnIndex, endColumnIndex },
+            (rowIndex, columnIndex, cell) => {
+                const x = columnIndex * ColumnWidth + 1 - this.scrollLeft
+                const y = rowIndex * RowHeight + 1 - this.scrollTop
 
-            // skip left invisible area
-            if (x < -ColumnWidth) {
-                return IterateeResult.NextColumn
-            }
+                // border
+                ctx.beginPath()
+                ctx.moveTo(x, y)
+                ctx.lineTo(x + ColumnWidth, y)
+                ctx.lineTo(x + ColumnWidth, y + RowHeight)
+                ctx.lineTo(x, y + RowHeight)
+                ctx.closePath()
+                ctx.lineWidth = 1 / this.scale
+                ctx.stroke()
 
-            // skip top invisible area
-            if (y < -RowHeight) {
-                return IterateeResult.NextRow
-            }
-
-            // skip right invisible area
-            if (x > canvasWidth) {
-                return IterateeResult.NextRow
-            }
-
-            // skip bottom invisible area
-            if (y > canvasHeight) {
-                return IterateeResult.Break
-            }
-
-            // border
-            ctx.beginPath()
-            ctx.moveTo(x, y)
-            ctx.lineTo(x + ColumnWidth, y)
-            ctx.lineTo(x + ColumnWidth, y + RowHeight)
-            ctx.lineTo(x, y + RowHeight)
-            ctx.closePath()
-            ctx.lineWidth = 1 / this.scale
-            ctx.stroke()
-
-            // cell text
-            const textX = x + CellXPadding
-            const textY = y + RowHeight / 2
-            cell && ctx.fillText(String(cell.v), textX, textY)
-        })
+                // cell text
+                const textX = x + CellXPadding
+                const textY = y + RowHeight / 2
+                cell && ctx.fillText(String(cell.v), textX, textY)
+            },
+        )
 
         // create a refresher
         this.refresh = () => this.render(sheet)

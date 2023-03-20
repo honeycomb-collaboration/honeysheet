@@ -1,7 +1,7 @@
 import { Destroyable, Logger } from '../../tools'
 import { CellId, ICell } from '../cell'
 import { createUniqueID } from '../../uitls/randomId'
-import { AuthorizationOption } from '../constant'
+import { AuthorizationOption, ColumnWidth, RowHeight } from '../constant'
 import { RowId } from '../row'
 import { ColumnId } from '../column'
 import { generateIds } from '../../uitls/dataId'
@@ -20,29 +20,18 @@ export type SheetOptions = {
     cells?: CellRecord[]
 }
 
-export enum IterateeResult {
-    Continue, // 继续遍历
-    NextColumn, // 跳转下一列
-    NextRow, // 跳转下一行
-    Break, // 终止遍历
-}
-export type Iteratee = (
-    rowIndex: number,
-    columnIndex: number,
-    cell?: ICell,
-) => IterateeResult | undefined
-
 export type SheetId = string
 
 export class Sheet extends Destroyable {
     public readonly id: SheetId
     public readonly name: string
     private readonly cellMap = new Map<CellId, ICell>()
-    public readonly columnIds: ColumnId[]
-    public readonly rowIds: RowId[]
+    private readonly columnIds: ColumnId[]
+    private readonly rowIds: RowId[]
     private readonly columnWidth?: number // 默认列宽
     private readonly rowHeight?: number // 默认行高
     private readonly authorization: Set<AuthorizationOption> // 权限配置
+
     constructor(options: SheetOptions) {
         super()
         Logger.info('初始化 sheet=', options.name)
@@ -69,18 +58,44 @@ export class Sheet extends Destroyable {
         })
     }
 
-    public iterateCellGrid(iteratee: Iteratee): void {
-        for (let rowIndex = 0; rowIndex < this.rowIds.length; rowIndex++) {
+    public get width(): number {
+        return this.columnIds.length * ColumnWidth
+    }
+
+    public get height(): number {
+        return this.rowIds.length * RowHeight
+    }
+
+    public getColumnIndex(x: number): number {
+        const index = Math.trunc(x / ColumnWidth)
+        return Math.min(index, this.columnIds.length - 1)
+    }
+
+    public getRowIndex(y: number): number {
+        const index = Math.trunc(y / RowHeight)
+        return Math.min(index, this.rowIds.length - 1)
+    }
+
+    public iterateCellGrid(
+        {
+            startRowIndex = 0,
+            endRowIndex = this.rowIds.length,
+            startColumnIndex = 0,
+            endColumnIndex = this.columnIds.length,
+        }: {
+            startRowIndex: number
+            endRowIndex: number
+            startColumnIndex: number
+            endColumnIndex: number
+        },
+        iteratee: (rowIndex: number, columnIndex: number, cell?: ICell) => void,
+    ): void {
+        for (let rowIndex = startRowIndex; rowIndex <= endRowIndex; rowIndex++) {
             const rowId = this.rowIds[rowIndex]
-            for (let columnIndex = 0; columnIndex < this.columnIds.length; columnIndex++) {
+            for (let columnIndex = startColumnIndex; columnIndex <= endColumnIndex; columnIndex++) {
                 const columnId = this.columnIds[columnIndex]
                 const cell = this.cellMap.get(`${columnId}_${rowId}`)
-                const result = iteratee(rowIndex, columnIndex, cell)
-                if (result === IterateeResult.Break) {
-                    return
-                } else if (result === IterateeResult.NextRow) {
-                    break
-                }
+                iteratee(rowIndex, columnIndex, cell)
             }
         }
     }

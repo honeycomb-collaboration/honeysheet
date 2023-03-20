@@ -5,3 +5,6 @@ export enum AuthorizationOption {
     COPY = 'COPY',
     COMMENT = 'COMMENT',
 }
+
+export const RowHeight = 20
+export const ColumnWidth = 100
