@@ -63,11 +63,8 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         // text config
         ctx.font = `${FontSize}px/${LineHeight}px Verdana`
         ctx.textBaseline = 'middle'
-        this.maxScrollLeft = Math.max(sheet.width + 1 - canvasWidth / this.scale + RightPadding, 0)
-        this.maxScrollTop = Math.max(
-            sheet.height + 1 - canvasHeight / this.scale + BottomPadding,
-            0,
-        )
+        this.maxScrollLeft = Math.max(sheet.width - canvasWidth / this.scale + RightPadding, 0)
+        this.maxScrollTop = Math.max(sheet.height - canvasHeight / this.scale + BottomPadding, 0)
         const startColumnIndex = sheet.getColumnIndex(this.scrollLeft)
         const endColumnIndex = sheet.getColumnIndex(this.scrollLeft + canvasWidth)
         const startRowIndex = sheet.getRowIndex(this.scrollTop)
@@ -76,16 +73,16 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         sheet.iterateCellGrid(
             { startRowIndex, endRowIndex, startColumnIndex, endColumnIndex },
             (rowIndex, columnIndex, cell) => {
-                const x = columnIndex * ColumnWidth + 1 - this.scrollLeft
-                const y = rowIndex * RowHeight + 1 - this.scrollTop
+                const x = columnIndex * ColumnWidth + 0.5 - this.scrollLeft
+                const y = rowIndex * RowHeight - this.scrollTop
 
                 // border
                 ctx.beginPath()
-                ctx.moveTo(x, y)
-                ctx.lineTo(x + ColumnWidth, y)
+                ctx.moveTo(x + ColumnWidth, y)
+                // right border
                 ctx.lineTo(x + ColumnWidth, y + RowHeight)
+                // bottom border
                 ctx.lineTo(x, y + RowHeight)
-                ctx.closePath()
                 ctx.lineWidth = 1 / this.scale
                 ctx.stroke()
 
