@@ -9,6 +9,35 @@ const LineHeight = 16
 const CellXPadding = 2
 const RightPadding = 120
 const BottomPadding = 60
+const ColumnHeadHeight = 24
+const RowHeadWidth = 46
+
+function drawCell(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    text?: string | number,
+): void {
+    const _x = x + 0.5
+    const _y = y + 0.5
+    // border
+    ctx.beginPath()
+    ctx.moveTo(_x + width, _y)
+    // right border
+    ctx.lineTo(_x + width, _y + height)
+    // bottom border
+    ctx.lineTo(_x, _y + height)
+    ctx.stroke()
+
+    // cell text
+    if (text !== undefined) {
+        const textX = _x + CellXPadding
+        const textY = _y + height / 2
+        ctx.fillText(String(text), textX, textY)
+    }
+}
 
 /**
  * Canvas 2d Renderer
@@ -63,8 +92,14 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         // text config
         ctx.font = `${FontSize}px/${LineHeight}px Verdana`
         ctx.textBaseline = 'middle'
-        this.maxScrollLeft = Math.max(sheet.width - canvasWidth / this.scale + RightPadding, 0)
-        this.maxScrollTop = Math.max(sheet.height - canvasHeight / this.scale + BottomPadding, 0)
+        this.maxScrollLeft = Math.max(
+            sheet.width - canvasWidth / this.scale + RightPadding * this.scale,
+            0,
+        )
+        this.maxScrollTop = Math.max(
+            sheet.height - canvasHeight / this.scale + BottomPadding * this.scale,
+            0,
+        )
         const startColumnIndex = sheet.getColumnIndex(this.scrollLeft)
         const endColumnIndex = sheet.getColumnIndex(this.scrollLeft + canvasWidth)
         const startRowIndex = sheet.getRowIndex(this.scrollTop)
@@ -73,25 +108,35 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         sheet.iterateCellGrid(
             { startRowIndex, endRowIndex, startColumnIndex, endColumnIndex },
             (rowIndex, columnIndex, cell) => {
-                const x = columnIndex * ColumnWidth + 0.5 - this.scrollLeft
-                const y = rowIndex * RowHeight - this.scrollTop
-
-                // border
-                ctx.beginPath()
-                ctx.moveTo(x + ColumnWidth, y)
-                // right border
-                ctx.lineTo(x + ColumnWidth, y + RowHeight)
-                // bottom border
-                ctx.lineTo(x, y + RowHeight)
+                const x = RowHeadWidth + columnIndex * ColumnWidth - this.scrollLeft
+                const y = ColumnHeadHeight + rowIndex * RowHeight - this.scrollTop
                 ctx.lineWidth = 1 / this.scale
-                ctx.stroke()
-
-                // cell text
-                const textX = x + CellXPadding
-                const textY = y + RowHeight / 2
-                cell && ctx.fillText(String(cell.v), textX, textY)
+                drawCell(ctx, x, y, ColumnWidth, RowHeight, cell?.v)
             },
         )
+
+        // clear column head
+        ctx.clearRect(RowHeadWidth, 0, canvasWidth, ColumnHeadHeight)
+        // clear row head
+        ctx.clearRect(0, ColumnHeadHeight, RowHeadWidth, canvasHeight)
+
+        // draw column head
+        sheet.iterateColumns((columnIndex) => {
+            const x = RowHeadWidth + columnIndex * ColumnWidth - this.scrollLeft
+            ctx.lineWidth = 1 / this.scale
+            drawCell(ctx, x, 0, ColumnWidth, ColumnHeadHeight, columnIndex)
+        })
+
+        // draw row head
+        sheet.iterateRows((rowIndex) => {
+            const y = ColumnHeadHeight + rowIndex * RowHeight - this.scrollTop
+            ctx.lineWidth = 1 / this.scale
+            drawCell(ctx, 0, y, RowHeadWidth, RowHeight, rowIndex)
+        })
+
+        // draw left-top cell
+        ctx.clearRect(0, 0, RowHeadWidth, ColumnHeadHeight)
+        drawCell(ctx, 0, 0, RowHeadWidth, ColumnHeadHeight)
 
         // create a refresher
         this.refresh = () => this.render(sheet)

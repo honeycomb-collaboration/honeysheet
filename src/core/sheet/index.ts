@@ -100,6 +100,17 @@ export class Sheet extends Destroyable {
         }
     }
 
+    public iterateRows(rowIteratee: (rowIndex: number) => void): void {
+        for (let rowIndex = 0; rowIndex < this.rowIds.length; rowIndex++) {
+            rowIteratee(rowIndex)
+        }
+    }
+    public iterateColumns(columnIteratee: (columnIndex: number) => void): void {
+        for (let columnIndex = 0; columnIndex < this.columnIds.length; columnIndex++) {
+            columnIteratee(columnIndex)
+        }
+    }
+
     public setCellGrid(data: (number | string)[][]): void {
         const rowCount = data.length
         const columnCount = data[0]?.length || 0
