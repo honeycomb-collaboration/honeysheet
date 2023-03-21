@@ -1,5 +1,3 @@
-import { deleteAllKeys } from '../uitls/desturct'
-
 export class Destroyable {
     private readonly revokers: Array<() => void> = []
 
@@ -8,7 +6,18 @@ export class Destroyable {
     }
 
     public destroy() {
+        console.warn(this, 'destroyed')
         this.revokers.forEach((revoker) => revoker())
-        deleteAllKeys(this)
+        Object.keys(this).forEach((key) => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            const value = this[key]
+            if (value instanceof Destroyable) {
+                value.destroy()
+            }
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            delete this[key]
+        })
     }
 }

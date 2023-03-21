@@ -1,6 +1,5 @@
 import { Destroyable, Logger } from '../../tools'
 import { Sheet, SheetId, SheetOptions } from '../sheet'
-import { Exception } from 'src/tools'
 import { getConnection } from '../../websocket'
 import { Canvas2dRenderer, IRenderer } from '../renderer'
 import { createUniqueID } from '../../uitls/randomId'
@@ -10,8 +9,11 @@ import { generateIds } from '../../uitls/dataId'
 const DefaultRowCount = 30
 const DefaultColumnCount = 10
 
+const honeysheetRef = Symbol('honeysheet')
+type ContainerElement = HTMLElement & { [honeysheetRef]?: Spreadsheet }
+
 export type SpreadSheetOptions = {
-    container: string // 容器 querySelector 参数
+    container: ContainerElement // 容器 querySelector 参数
     id?: string // Spreadsheet ID
     name?: string // Spreadsheet 名称
     columnCount?: number // 默认列数
@@ -28,26 +30,18 @@ export class Spreadsheet extends Destroyable {
     id: string
     name: string
     sheetMap = new Map<SheetId, Sheet>()
-    container: HTMLElement
     private currentSheetId: SheetId
     private readonly renderer: IRenderer
 
     constructor(opts: SpreadSheetOptions) {
         super()
-        // 初始化: 配置参数、准备一些全局变量的值
-        this.id = opts.id || createUniqueID('honey')
-        const container = document.getElementById(opts.container)
-        if (!container) {
-            Logger.error('Init Spreadsheet fail, dom element not found')
-            throw new Exception(
-                'config key container',
-                'Init Spreadsheet fail, dom element not found',
-            )
+        if (opts.container[honeysheetRef]) {
+            console.error(opts.container, 'already is a honeysheet')
+            throw new Error('Already a honeysheet')
         }
-        this.container = container
-        this.renderer = new Canvas2dRenderer(this.container)
+        this.id = opts.id || createUniqueID('honey')
+        this.renderer = new Canvas2dRenderer(opts.container)
         this.name = opts.name || `New Honeycomb Spreadsheet`
-        Logger.info('创建电子表格 SpreadSheet=', this.name)
 
         const sheets = opts.sheets.map((item, index) => {
             const rowCount = opts.rowCount || DefaultRowCount
@@ -70,7 +64,6 @@ export class Spreadsheet extends Destroyable {
             this.sheetMap.set(sheet.id, sheet)
             return sheet
         })
-
         if (sheets.length === 0) {
             throw new Error(`sheets array can't be empty`)
         }
@@ -82,6 +75,8 @@ export class Spreadsheet extends Destroyable {
         }
 
         this.renderCurrentSheet()
+        opts.container[honeysheetRef] = this
+        this.onDestroy(() => delete opts.container[honeysheetRef])
     }
 
     public get currentSheet(): Sheet {

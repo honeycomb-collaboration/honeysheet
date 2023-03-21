@@ -65,12 +65,16 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
             }
         }
         window.addEventListener('resize', this.handleResize)
-        this.onDestroy(() => window.removeEventListener('resize', this.handleResize))
+        this.resize(container)
         this.canvas.addEventListener('wheel', this.handleWheel, {
             passive: false,
         })
-        this.onDestroy(() => this.canvas.removeEventListener('wheel', this.handleWheel))
-        this.resize(container)
+
+        this.onDestroy(() => {
+            container.removeChild(this.canvas)
+            window.removeEventListener('resize', this.handleResize)
+            this.canvas.removeEventListener('wheel', this.handleWheel)
+        })
     }
 
     public render(sheet: Sheet): void {
