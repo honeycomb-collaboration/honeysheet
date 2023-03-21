@@ -3,8 +3,9 @@ import { Sheet } from '../sheet'
 import { Destroyable, Logger } from '../../tools'
 import { noop } from '../../uitls/noop'
 import { ColumnWidth, RowHeight } from '../constant'
+import { indexToColumnName } from '../column'
 
-const FontSize = 14
+const FontSize = 12
 const LineHeight = 16
 const CellXPadding = 2
 const RightPadding = 120
@@ -124,14 +125,14 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         sheet.iterateColumns((columnIndex) => {
             const x = RowHeadWidth + columnIndex * ColumnWidth - this.scrollLeft
             ctx.lineWidth = 1 / this.scale
-            drawCell(ctx, x, 0, ColumnWidth, ColumnHeadHeight, columnIndex)
+            drawCell(ctx, x, 0, ColumnWidth, ColumnHeadHeight, indexToColumnName(columnIndex))
         })
 
         // draw row head
         sheet.iterateRows((rowIndex) => {
             const y = ColumnHeadHeight + rowIndex * RowHeight - this.scrollTop
             ctx.lineWidth = 1 / this.scale
-            drawCell(ctx, 0, y, RowHeadWidth, RowHeight, rowIndex)
+            drawCell(ctx, 0, y, RowHeadWidth, RowHeight, rowIndex + 1)
         })
 
         // draw left-top cell
