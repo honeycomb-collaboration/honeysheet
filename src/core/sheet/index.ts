@@ -1,7 +1,13 @@
 import { Destroyable, Logger } from '../../tools'
 import { CellId, ICell } from '../cell'
 import { createUniqueID } from '../../uitls/randomId'
-import { AuthorizationOption, ColumnWidth, RowHeight } from '../constant'
+import {
+    AuthorizationOption,
+    ColumnHeadHeight,
+    ColumnWidth,
+    RowHeadWidth,
+    RowHeight,
+} from '../constant'
 import { RowId } from '../row'
 import { ColumnId } from '../column'
 import { generateIds } from '../../uitls/dataId'
@@ -21,6 +27,8 @@ export type SheetOptions = {
 }
 
 export type SheetId = string
+
+export type SelectArea = { rowIds: Array<RowId>; columnIds: Array<ColumnId> }
 
 export class Sheet extends Destroyable {
     public readonly id: SheetId
@@ -66,6 +74,41 @@ export class Sheet extends Destroyable {
         return this.rowIds.length * RowHeight
     }
 
+    private _selection: SelectArea[] = []
+
+    public get selection(): SelectArea[] {
+        return this._selection
+    }
+
+    public loopSelection(
+        iteratee: (
+            selectArea: {
+                area: SelectArea
+                x: number
+                y: number
+                width: number
+                height: number
+            },
+            index: number,
+        ) => void,
+    ) {
+        this._selection.forEach((area, index) => {
+            let x = this.getCellOffsetX(area.columnIds[0])
+            let y = this.getCellOffsetY(area.rowIds[0])
+            const lastColumnId = area.columnIds[area.columnIds.length - 1]
+            const lastRowId = area.rowIds[area.rowIds.length - 1]
+            const width = this.getCellOffsetX(lastColumnId) - x + ColumnWidth
+            const height = this.getCellOffsetY(lastRowId) - y + RowHeight
+            area.columnIds.forEach((columnId) => {
+                x = Math.min(this.getCellOffsetX(columnId), x)
+            })
+            area.rowIds.forEach((rowId) => {
+                y = Math.min(this.getCellOffsetY(rowId), y)
+            })
+            iteratee({ area, x, y, width, height }, index)
+        })
+    }
+
     public getColumnIndex(x: number): number {
         const index = Math.trunc(x / ColumnWidth)
         return Math.min(index, this.columnIds.length - 1)
@@ -74,6 +117,15 @@ export class Sheet extends Destroyable {
     public getRowIndex(y: number): number {
         const index = Math.trunc(y / RowHeight)
         return Math.min(index, this.rowIds.length - 1)
+    }
+
+    public selectArea(start: { x: number; y: number }): void {
+        const columnIndex = this.getColumnIndex(start.x)
+        const rowIndex = this.getRowIndex(start.y)
+        this.select({
+            rowIds: [this.rowIds[rowIndex]],
+            columnIds: [this.columnIds[columnIndex]],
+        })
     }
 
     public iterateCellGrid(
@@ -105,6 +157,7 @@ export class Sheet extends Destroyable {
             rowIteratee(rowIndex)
         }
     }
+
     public iterateColumns(columnIteratee: (columnIndex: number) => void): void {
         for (let columnIndex = 0; columnIndex < this.columnIds.length; columnIndex++) {
             columnIteratee(columnIndex)
@@ -133,5 +186,19 @@ export class Sheet extends Destroyable {
                 `${this.columnIds[columnIndex]}_${this.rowIds[rowIndex]}` satisfies CellId
             this.cellMap.set(cellId, { v: item })
         })
+    }
+
+    private getCellOffsetX(columnId: ColumnId): number {
+        const columnIndex = this.columnIds.findIndex((id) => id === columnId)
+        return columnIndex * ColumnWidth + RowHeadWidth
+    }
+
+    private getCellOffsetY(rowId: number): number {
+        const rowIndex = this.rowIds.findIndex((id) => id === rowId)
+        return rowIndex * RowHeight + ColumnHeadHeight
+    }
+
+    private select(...areas: SelectArea[]): void {
+        this._selection = areas
     }
 }

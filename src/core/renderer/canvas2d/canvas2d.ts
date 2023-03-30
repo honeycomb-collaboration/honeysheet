@@ -1,44 +1,15 @@
-import { IRenderer } from './interface'
-import { Sheet } from '../sheet'
-import { Destroyable, Logger } from '../../tools'
-import { noop } from '../../uitls/noop'
-import { ColumnWidth, RowHeight } from '../constant'
-import { indexToColumnName } from '../column'
+import { IRenderer } from '../interface'
+import { Sheet } from '../../sheet'
+import { Destroyable, Logger } from '../../../tools'
+import { ColumnHeadHeight, ColumnWidth, RowHeadWidth, RowHeight } from '../../constant'
+import { indexToColumnName } from '../../column'
+import { createSelectionDiv, ensureSelectionDivs } from './selection'
+import { drawCell } from './cell'
 
 const FontSize = 12
 const LineHeight = 16
-const CellXPadding = 2
 const RightPadding = 120
 const BottomPadding = 60
-const ColumnHeadHeight = 24
-const RowHeadWidth = 46
-
-function drawCell(
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    text?: string | number,
-): void {
-    const _x = x + 0.5
-    const _y = y + 0.5
-    // border
-    ctx.beginPath()
-    ctx.moveTo(_x + width, _y)
-    // right border
-    ctx.lineTo(_x + width, _y + height)
-    // bottom border
-    ctx.lineTo(_x, _y + height)
-    ctx.stroke()
-
-    // cell text
-    if (text !== undefined) {
-        const textX = _x + CellXPadding
-        const textY = _y + height / 2
-        ctx.fillText(String(text), textX, textY)
-    }
-}
 
 /**
  * Canvas 2d Renderer
@@ -46,39 +17,80 @@ function drawCell(
 export class Canvas2dRenderer extends Destroyable implements IRenderer {
     private scale = 1
     private readonly canvas = document.createElement('canvas')
-    private refresh = noop
+    private sheet?: Sheet
     private scrollTop = 0
     private maxScrollTop = 0
     private scrollLeft = 0
     private maxScrollLeft = 0
     private readonly handleResize: () => void
 
-    constructor(container: HTMLElement) {
+    constructor(private readonly container: HTMLElement) {
         super()
         this.canvas.style.display = 'block'
-        this.canvas.style.border = '1px solid lightgrey'
+        const selectDiv = createSelectionDiv()
+
+        container.style.contain = 'content'
         container.appendChild(this.canvas)
+        this.resize(container)
+
         this.handleResize = () => {
             const changed = this.resize(container)
             if (changed) {
-                this.refresh()
+                this.doRender()
             }
         }
         window.addEventListener('resize', this.handleResize)
-        this.resize(container)
-        this.canvas.addEventListener('wheel', this.handleWheel, {
+        container.addEventListener('wheel', this.handleWheel, {
             passive: false,
+        })
+
+        this.canvas.addEventListener('mousedown', (event) => {
+            if (this.sheet) {
+                this.sheet.selectArea({
+                    x: event.offsetX - RowHeadWidth + this.scrollLeft,
+                    y: event.offsetY - ColumnHeadHeight + this.scrollTop,
+                })
+                this.showSelectArea()
+            }
         })
 
         this.onDestroy(() => {
             container.removeChild(this.canvas)
+            container.removeChild(selectDiv)
             window.removeEventListener('resize', this.handleResize)
-            this.canvas.removeEventListener('wheel', this.handleWheel)
+            container.removeEventListener('wheel', this.handleWheel)
         })
     }
 
     public render(sheet: Sheet): void {
+        this.sheet = sheet
+        this.doRender()
+    }
+
+    private showSelectArea() {
+        if (!this.sheet) {
+            return
+        }
+        const areas = ensureSelectionDivs(this.container, this.sheet.selection.length)
+        this.sheet.loopSelection(({ x, y, width, height }, index) => {
+            let areaDiv = areas[index]
+            if (!areaDiv) {
+                areaDiv = createSelectionDiv()
+                this.container.appendChild(areaDiv)
+            }
+
+            areaDiv.style.transform = `translate(${x - this.scrollLeft}px, ${y - this.scrollTop}px)`
+            areaDiv.style.width = width + 1 + 'px' // 1 is necessary because the outline needs cover all borders
+            areaDiv.style.height = height + 1 + 'px' // 1 is necessary because the outline needs cover all borders
+        })
+    }
+
+    private doRender(): void {
         Logger.debug('render called.')
+        if (!this.sheet) {
+            return
+        }
+        const sheet = this.sheet
         const ctx = this.canvas.getContext('2d')
         if (!ctx) {
             throw new Error('canvas context null')
@@ -142,9 +154,6 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         // draw left-top cell
         ctx.clearRect(0, 0, RowHeadWidth, ColumnHeadHeight)
         drawCell(ctx, 0, 0, RowHeadWidth, ColumnHeadHeight)
-
-        // create a refresher
-        this.refresh = () => this.render(sheet)
     }
 
     private readonly handleWheel = (event: WheelEvent) => {
@@ -179,7 +188,8 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         if (scrollLeft !== this.scrollLeft || scrollTop !== this.scrollTop) {
             this.scrollLeft = scrollLeft
             this.scrollTop = scrollTop
-            this.refresh()
+            this.doRender()
+            this.showSelectArea()
         }
     }
 
