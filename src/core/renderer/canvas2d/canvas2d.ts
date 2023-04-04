@@ -22,7 +22,6 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
     private maxScrollTop = 0
     private scrollLeft = 0
     private maxScrollLeft = 0
-    private readonly handleResize: () => void
 
     constructor(private readonly container: HTMLElement) {
         super()
@@ -33,13 +32,13 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         container.appendChild(this.canvas)
         this.resize(container)
 
-        this.handleResize = () => {
+        const handleResize = () => {
             const changed = this.resize(container)
             if (changed) {
                 this.doRender()
             }
         }
-        window.addEventListener('resize', this.handleResize)
+        window.addEventListener('resize', handleResize)
         container.addEventListener('wheel', this.handleWheel, {
             passive: false,
         })
@@ -57,7 +56,7 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         this.onDestroy(() => {
             container.removeChild(this.canvas)
             container.removeChild(selectDiv)
-            window.removeEventListener('resize', this.handleResize)
+            window.removeEventListener('resize', handleResize)
             container.removeEventListener('wheel', this.handleWheel)
         })
     }
