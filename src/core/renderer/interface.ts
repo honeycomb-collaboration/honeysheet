@@ -1,6 +1,12 @@
 import { Sheet } from '../sheet'
 import { Destroyable } from '../../tools'
+import { RowId } from '../row'
+import { ColumnId } from '../column'
 
 export interface IRenderer extends Destroyable {
-    render(sheet: Sheet): void
+    renderSheet(sheet: Sheet): void
+
+    render(): void
+
+    renderCell(rowId: RowId, columnId: ColumnId): void
 }

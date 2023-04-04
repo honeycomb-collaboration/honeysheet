@@ -88,6 +88,6 @@ export class Spreadsheet extends Destroyable {
     }
 
     public renderCurrentSheet() {
-        this.renderer.render(this.currentSheet)
+        this.renderer.renderSheet(this.currentSheet)
     }
 }

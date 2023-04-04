@@ -12,6 +12,8 @@ import { RowId } from '../row'
 import { ColumnId } from '../column'
 import { generateIds } from '../../uitls/dataId'
 import { forEach2dArray } from '../../uitls/2dArray'
+import { SelectedArea } from '../renderer/canvas2d/selection'
+import { IRenderer } from '../renderer'
 
 export type CellRecord = { cell: ICell; rowId: RowId; columnId: ColumnId }
 
@@ -74,25 +76,32 @@ export class Sheet extends Destroyable {
         return this.rowIds.length * RowHeight
     }
 
-    private _selection: SelectArea[] = []
+    private selection: SelectedArea[] = []
 
-    public get selection(): SelectArea[] {
-        return this._selection
+    getCell(rowId: RowId, columnId: ColumnId): ICell {
+        const cell = this.cellMap.get(`${columnId}_${rowId}`)
+        if (!cell) {
+            const err = `no cell with columnId=${columnId} rowId=${rowId}`
+            throw new Error(err)
+        }
+        return cell
+    }
+
+    updateCell(rowId: RowId, columnId: ColumnId, value: string | number) {
+        const cell = this.getCell(rowId, columnId)
+        cell.v = value
     }
 
     public loopSelection(
-        iteratee: (
-            selectArea: {
-                area: SelectArea
-                x: number
-                y: number
-                width: number
-                height: number
-            },
-            index: number,
-        ) => void,
+        iteratee: (selectArea: {
+            area: SelectedArea
+            x: number
+            y: number
+            width: number
+            height: number
+        }) => void,
     ) {
-        this._selection.forEach((area, index) => {
+        this.selection.forEach((area) => {
             let x = this.getCellOffsetX(area.columnIds[0])
             let y = this.getCellOffsetY(area.rowIds[0])
             const lastColumnId = area.columnIds[area.columnIds.length - 1]
@@ -105,7 +114,7 @@ export class Sheet extends Destroyable {
             area.rowIds.forEach((rowId) => {
                 y = Math.min(this.getCellOffsetY(rowId), y)
             })
-            iteratee({ area, x, y, width, height }, index)
+            iteratee({ area, x, y, width, height })
         })
     }
 
@@ -119,13 +128,10 @@ export class Sheet extends Destroyable {
         return Math.min(index, this.rowIds.length - 1)
     }
 
-    public selectArea(start: { x: number; y: number }): void {
+    public selectArea(renderer: IRenderer, start: { x: number; y: number }): void {
         const columnIndex = this.getColumnIndex(start.x)
         const rowIndex = this.getRowIndex(start.y)
-        this.select({
-            rowIds: [this.rowIds[rowIndex]],
-            columnIds: [this.columnIds[columnIndex]],
-        })
+        this.ensureSelectedAreas(renderer, [[this.rowIds[rowIndex]], [this.columnIds[columnIndex]]])
     }
 
     public iterateCellGrid(
@@ -198,7 +204,37 @@ export class Sheet extends Destroyable {
         return rowIndex * RowHeight + ColumnHeadHeight
     }
 
-    private select(...areas: SelectArea[]): void {
-        this._selection = areas
+    private ensureSelectedAreas(
+        renderer: IRenderer,
+        ...areas: [Array<RowId>, Array<ColumnId>][]
+    ): void {
+        const count = areas.length
+
+        if (this.selection.length > count) {
+            const deleted = this.selection.splice(count, this.selection.length - count)
+            deleted.forEach((sa) => sa.destroy())
+            this.selection.forEach((sa, index) => {
+                sa.rowIds = areas[index][0]
+                sa.columnIds = areas[index][1]
+            })
+            return
+        }
+
+        if (this.selection.length < count) {
+            const newSas = areas
+                .slice(count - this.selection.length - 1)
+                .map((area) => new SelectedArea(this, renderer, area[0], area[1]))
+            this.selection.forEach((sa, index) => {
+                sa.rowIds = areas[index][0]
+                sa.columnIds = areas[index][1]
+            })
+            this.selection.push(...newSas)
+            return
+        }
+
+        this.selection.forEach((sa, index) => {
+            sa.rowIds = areas[index][0]
+            sa.columnIds = areas[index][1]
+        })
     }
 }

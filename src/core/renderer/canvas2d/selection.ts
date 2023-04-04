@@ -1,8 +1,11 @@
-const SelectAreaDiv = 'select-area-div'
+import { Sheet } from '../../sheet'
+import { RowId } from '../../row'
+import { ColumnId } from '../../column'
+import { Destroyable } from '../../../tools'
+import { IRenderer } from '../interface'
 
-export function createSelectionDiv(): HTMLDivElement {
+function createSelectionDiv(): HTMLDivElement {
     const div = document.createElement('div')
-    div.dataset['type'] = SelectAreaDiv
     div.style.boxSizing = 'border-box'
     div.style.position = 'absolute'
     div.style.contain = 'content'
@@ -10,27 +13,78 @@ export function createSelectionDiv(): HTMLDivElement {
     div.style.left = '0px'
     div.style.backgroundColor = 'rgba(255, 255, 255, .1)'
     div.style.border = `1px solid red`
-    div.addEventListener('dblclick', (event) => {
-        console.warn('dbclick', event)
-    })
     return div
 }
 
-export function ensureSelectionDivs(container: HTMLElement, count: number): Array<HTMLDivElement> {
-    const divs = Array.from(
-        container.querySelectorAll<HTMLDivElement>(`[data-type=${SelectAreaDiv}]`),
+function createSelectionEditInput(): HTMLInputElement {
+    const input = document.createElement('input')
+    input.setAttribute(
+        'style',
+        `
+        display: block;
+        border: none;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        outline: 1px solid skyblue;
+    `,
     )
+    return input
+}
 
-    if (divs.length > count) {
-        divs.slice(count).forEach((div) => div.remove())
-        return divs.slice(0, count)
+export class SelectedArea extends Destroyable {
+    div = createSelectionDiv()
+    constructor(
+        private readonly sheet: Sheet,
+        private readonly renderer: IRenderer,
+        public rowIds: Array<RowId>,
+        public columnIds: Array<ColumnId>,
+    ) {
+        super()
+        this.listenForEnterEdit()
+    }
+    private enterEdit = () => {
+        const rowId = this.rowIds[this.rowIds.length - 1]
+        const columnId = this.columnIds[this.columnIds.length - 1]
+        const cell = this.sheet.getCell(
+            this.rowIds[this.rowIds.length - 1],
+            this.columnIds[this.columnIds.length - 1],
+        )
+        if (!cell) {
+            return
+        }
+        const value = cell.v
+        const input = createSelectionEditInput()
+        input.value = String(value)
+        this.div.appendChild(input)
+        input.focus({ preventScroll: true })
+
+        const quitEdit = () => {
+            input.remove()
+            this.listenForEnterEdit()
+        }
+        input.addEventListener('blur', quitEdit, { once: true })
+        input.addEventListener('keydown', (event) => {
+            if (event.code === 'Enter') {
+                this.sheet.updateCell(rowId, columnId, input.value)
+                this.renderer.renderCell(rowId, columnId)
+                input.blur()
+            }
+            if (event.code === 'Escape') {
+                input.blur() // trigger quitEdit()
+            }
+        })
     }
 
-    if (divs.length < count) {
-        const newDivs = Array.from({ length: count - divs.length }).map(() => createSelectionDiv())
-        container.append(...newDivs)
-        return divs.concat(newDivs)
+    private listenForEnterEdit() {
+        this.div.addEventListener('dblclick', this.enterEdit, {
+            once: true,
+        })
     }
 
-    return divs
+    destroy() {
+        this.div.remove()
+        super.destroy()
+    }
 }

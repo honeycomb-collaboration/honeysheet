@@ -2,9 +2,9 @@ import { IRenderer } from '../interface'
 import { Sheet } from '../../sheet'
 import { Destroyable, Logger } from '../../../tools'
 import { ColumnHeadHeight, ColumnWidth, RowHeadWidth, RowHeight } from '../../constant'
-import { indexToColumnName } from '../../column'
-import { createSelectionDiv, ensureSelectionDivs } from './selection'
+import { ColumnId, indexToColumnName } from '../../column'
 import { drawCell } from './cell'
+import { RowId } from '../../row'
 
 const FontSize = 12
 const LineHeight = 16
@@ -26,7 +26,6 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
     constructor(private readonly container: HTMLElement) {
         super()
         this.canvas.style.display = 'block'
-        const selectDiv = createSelectionDiv()
 
         container.style.contain = 'content'
         container.appendChild(this.canvas)
@@ -35,7 +34,7 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         const handleResize = () => {
             const changed = this.resize(container)
             if (changed) {
-                this.doRender()
+                this.render()
             }
         }
         window.addEventListener('resize', handleResize)
@@ -45,7 +44,7 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
 
         this.canvas.addEventListener('mousedown', (event) => {
             if (this.sheet) {
-                this.sheet.selectArea({
+                this.sheet.selectArea(this, {
                     x: event.offsetX - RowHeadWidth + this.scrollLeft,
                     y: event.offsetY - ColumnHeadHeight + this.scrollTop,
                 })
@@ -55,26 +54,24 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
 
         this.onDestroy(() => {
             container.removeChild(this.canvas)
-            container.removeChild(selectDiv)
             window.removeEventListener('resize', handleResize)
             container.removeEventListener('wheel', this.handleWheel)
         })
     }
 
-    public render(sheet: Sheet): void {
+    public renderSheet(sheet: Sheet): void {
         this.sheet = sheet
-        this.doRender()
+        this.render()
     }
 
     private showSelectArea() {
         if (!this.sheet) {
             return
         }
-        const areas = ensureSelectionDivs(this.container, this.sheet.selection.length)
-        this.sheet.loopSelection(({ x, y, width, height }, index) => {
-            let areaDiv = areas[index]
-            if (!areaDiv) {
-                areaDiv = createSelectionDiv()
+        this.sheet.loopSelection(({ area, x, y, width, height }) => {
+            console.warn(area)
+            const areaDiv = area.div
+            if (!this.container.contains(areaDiv)) {
                 this.container.appendChild(areaDiv)
             }
 
@@ -84,7 +81,7 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         })
     }
 
-    private doRender(): void {
+    public render(): void {
         Logger.debug('render called.')
         if (!this.sheet) {
             return
@@ -155,6 +152,15 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         drawCell(ctx, 0, 0, RowHeadWidth, ColumnHeadHeight)
     }
 
+    /**
+     * TODO render a cell
+     * @param rowId
+     * @param columnId
+     */
+    public renderCell(rowId: RowId, columnId: ColumnId) {
+        this.render()
+    }
+
     private readonly handleWheel = (event: WheelEvent) => {
         if (event.ctrlKey) {
             return
@@ -187,7 +193,7 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         if (scrollLeft !== this.scrollLeft || scrollTop !== this.scrollTop) {
             this.scrollLeft = scrollLeft
             this.scrollTop = scrollTop
-            this.doRender()
+            this.render()
             this.showSelectArea()
         }
     }
