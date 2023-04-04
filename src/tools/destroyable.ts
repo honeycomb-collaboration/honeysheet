@@ -10,13 +10,7 @@ export class Destroyable {
         this.revokers.forEach((revoker) => revoker())
         Object.keys(this).forEach((key) => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            const value = this[key]
-            if (value instanceof Destroyable) {
-                value.destroy()
-            }
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+            // @ts-expect-error
             delete this[key]
         })
     }
