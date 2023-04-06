@@ -2,14 +2,14 @@ const CellXPadding = 2
 
 export function drawCell(
     ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
+    absoluteX: number,
+    absoluteY: number,
     width: number,
     height: number,
     text?: string | number,
 ): void {
-    const _x = x + 0.5
-    const _y = y + 0.5
+    const _x = absoluteX + 0.5
+    const _y = absoluteY + 0.5
     // border
     ctx.beginPath()
     ctx.moveTo(_x + width, _y)

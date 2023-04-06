@@ -30,8 +30,6 @@ export type SheetOptions = {
 
 export type SheetId = string
 
-export type SelectArea = { rowIds: Array<RowId>; columnIds: Array<ColumnId> }
-
 export class Sheet extends Destroyable {
     public readonly id: SheetId
     public readonly name: string
@@ -95,42 +93,42 @@ export class Sheet extends Destroyable {
     public loopSelection(
         iteratee: (selectArea: {
             area: SelectedArea
-            x: number
-            y: number
+            absoluteX: number
+            absoluteY: number
             width: number
             height: number
         }) => void,
     ) {
         this.selection.forEach((area) => {
-            let x = this.getCellOffsetX(area.columnIds[0])
-            let y = this.getCellOffsetY(area.rowIds[0])
+            let absoluteX = this.getCellOffsetX(area.columnIds[0])
+            let absoluteY = this.getCellOffsetY(area.rowIds[0])
             const lastColumnId = area.columnIds[area.columnIds.length - 1]
             const lastRowId = area.rowIds[area.rowIds.length - 1]
-            const width = this.getCellOffsetX(lastColumnId) - x + ColumnWidth
-            const height = this.getCellOffsetY(lastRowId) - y + RowHeight
+            const width = this.getCellOffsetX(lastColumnId) - absoluteX + ColumnWidth
+            const height = this.getCellOffsetY(lastRowId) - absoluteY + RowHeight
             area.columnIds.forEach((columnId) => {
-                x = Math.min(this.getCellOffsetX(columnId), x)
+                absoluteX = Math.min(this.getCellOffsetX(columnId), absoluteX)
             })
             area.rowIds.forEach((rowId) => {
-                y = Math.min(this.getCellOffsetY(rowId), y)
+                absoluteY = Math.min(this.getCellOffsetY(rowId), absoluteY)
             })
-            iteratee({ area, x, y, width, height })
+            iteratee({ area, absoluteX, absoluteY, width, height })
         })
     }
 
-    public getColumnIndex(x: number): number {
-        const index = Math.trunc(x / ColumnWidth)
+    public getColumnIndex(absoluteX: number): number {
+        const index = Math.trunc(absoluteX / ColumnWidth)
         return Math.min(index, this.columnIds.length - 1)
     }
 
-    public getRowIndex(y: number): number {
-        const index = Math.trunc(y / RowHeight)
+    public getRowIndex(absoluteY: number): number {
+        const index = Math.trunc(absoluteY / RowHeight)
         return Math.min(index, this.rowIds.length - 1)
     }
 
-    public selectArea(renderer: IRenderer, start: { x: number; y: number }): void {
-        const columnIndex = this.getColumnIndex(start.x)
-        const rowIndex = this.getRowIndex(start.y)
+    public selectArea(renderer: IRenderer, start: { absoluteX: number; absoluteY: number }): void {
+        const columnIndex = this.getColumnIndex(start.absoluteX)
+        const rowIndex = this.getRowIndex(start.absoluteY)
         this.ensureSelectedAreas(renderer, [[this.rowIds[rowIndex]], [this.columnIds[columnIndex]]])
     }
 

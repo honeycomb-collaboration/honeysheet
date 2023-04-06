@@ -10,3 +10,6 @@ export const RowHeight = 20
 export const ColumnWidth = 100
 export const ColumnHeadHeight = 24
 export const RowHeadWidth = 46
+
+export const FontSize = 12
+export const LineHeight = 16

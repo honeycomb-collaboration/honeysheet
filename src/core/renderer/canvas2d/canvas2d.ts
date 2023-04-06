@@ -1,13 +1,18 @@
 import { IRenderer } from '../interface'
 import { Sheet } from '../../sheet'
 import { Destroyable, Logger } from '../../../tools'
-import { ColumnHeadHeight, ColumnWidth, RowHeadWidth, RowHeight } from '../../constant'
+import {
+    ColumnHeadHeight,
+    ColumnWidth,
+    FontSize,
+    LineHeight,
+    RowHeadWidth,
+    RowHeight,
+} from '../../constant'
 import { ColumnId, indexToColumnName } from '../../column'
 import { drawCell } from './cell'
 import { RowId } from '../../row'
 
-const FontSize = 12
-const LineHeight = 16
 const RightPadding = 120
 const BottomPadding = 60
 
@@ -45,8 +50,8 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         this.canvas.addEventListener('mousedown', (event) => {
             if (this.sheet) {
                 this.sheet.selectArea(this, {
-                    x: event.offsetX - RowHeadWidth + this.scrollLeft,
-                    y: event.offsetY - ColumnHeadHeight + this.scrollTop,
+                    absoluteX: event.offsetX - RowHeadWidth + this.scrollLeft,
+                    absoluteY: event.offsetY - ColumnHeadHeight + this.scrollTop,
                 })
                 this.showSelectArea()
             }
@@ -65,17 +70,16 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
     }
 
     private showSelectArea() {
-        if (!this.sheet) {
-            return
-        }
-        this.sheet.loopSelection(({ area, x, y, width, height }) => {
+        this.sheet?.loopSelection(({ area, absoluteX, absoluteY, width, height }) => {
             console.warn(area)
             const areaDiv = area.div
             if (!this.container.contains(areaDiv)) {
                 this.container.appendChild(areaDiv)
             }
 
-            areaDiv.style.transform = `translate(${x - this.scrollLeft}px, ${y - this.scrollTop}px)`
+            areaDiv.style.transform = `translate(${absoluteX - this.scrollLeft}px, ${
+                absoluteY - this.scrollTop
+            }px)`
             areaDiv.style.width = width + 1 + 'px' // 1 is necessary because the outline needs cover all borders
             areaDiv.style.height = height + 1 + 'px' // 1 is necessary because the outline needs cover all borders
         })
@@ -121,10 +125,10 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
         sheet.iterateCellGrid(
             { startRowIndex, endRowIndex, startColumnIndex, endColumnIndex },
             (rowIndex, columnIndex, cell) => {
-                const x = RowHeadWidth + columnIndex * ColumnWidth - this.scrollLeft
-                const y = ColumnHeadHeight + rowIndex * RowHeight - this.scrollTop
+                const absoluteX = RowHeadWidth + columnIndex * ColumnWidth - this.scrollLeft
+                const absoluteY = ColumnHeadHeight + rowIndex * RowHeight - this.scrollTop
                 ctx.lineWidth = 1 / this.scale
-                drawCell(ctx, x, y, ColumnWidth, RowHeight, cell?.v)
+                drawCell(ctx, absoluteX, absoluteY, ColumnWidth, RowHeight, cell?.v)
             },
         )
 
@@ -135,16 +139,23 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
 
         // draw column head
         sheet.iterateColumns((columnIndex) => {
-            const x = RowHeadWidth + columnIndex * ColumnWidth - this.scrollLeft
+            const absoluteX = RowHeadWidth + columnIndex * ColumnWidth - this.scrollLeft
             ctx.lineWidth = 1 / this.scale
-            drawCell(ctx, x, 0, ColumnWidth, ColumnHeadHeight, indexToColumnName(columnIndex))
+            drawCell(
+                ctx,
+                absoluteX,
+                0,
+                ColumnWidth,
+                ColumnHeadHeight,
+                indexToColumnName(columnIndex),
+            )
         })
 
         // draw row head
         sheet.iterateRows((rowIndex) => {
-            const y = ColumnHeadHeight + rowIndex * RowHeight - this.scrollTop
+            const absoluteY = ColumnHeadHeight + rowIndex * RowHeight - this.scrollTop
             ctx.lineWidth = 1 / this.scale
-            drawCell(ctx, 0, y, RowHeadWidth, RowHeight, rowIndex + 1)
+            drawCell(ctx, 0, absoluteY, RowHeadWidth, RowHeight, rowIndex + 1)
         })
 
         // draw left-top cell

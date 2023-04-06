@@ -3,6 +3,7 @@ import { RowId } from '../../row'
 import { ColumnId } from '../../column'
 import { Destroyable } from '../../../tools'
 import { IRenderer } from '../interface'
+import { FontSize, LineHeight } from '../../constant'
 
 function createSelectionDiv(): HTMLDivElement {
     const div = document.createElement('div')
@@ -28,6 +29,7 @@ function createSelectionEditInput(): HTMLInputElement {
         height: 100%;
         border-radius: 0;
         outline: 1px solid skyblue;
+        font: ${FontSize}px/${LineHeight}px Verdana;
     `,
     )
     return input
@@ -43,6 +45,7 @@ export class SelectedArea extends Destroyable {
     ) {
         super()
         this.listenForEnterEdit()
+        this.onDestroy(() => this.div.remove())
     }
     private enterEdit = () => {
         const rowId = this.rowIds[this.rowIds.length - 1]
@@ -81,10 +84,5 @@ export class SelectedArea extends Destroyable {
         this.div.addEventListener('dblclick', this.enterEdit, {
             once: true,
         })
-    }
-
-    destroy() {
-        this.div.remove()
-        super.destroy()
     }
 }
