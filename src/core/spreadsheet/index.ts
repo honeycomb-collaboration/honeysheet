@@ -1,85 +1,95 @@
 import { Destroyable, Logger } from '../../tools'
-import { Sheet, SheetId, SheetOptions } from '../sheet'
+import { Sheet, SheetId } from '../sheet'
 import { getConnection } from '../../websocket'
-import { Canvas2dRenderer, IRenderer } from '../renderer'
+import { Canvas2dRenderer } from '../renderer'
 import { createUniqueID } from '../../uitls/randomId'
-import { AuthorizationOption } from '../constant'
+import { AuthorizationOption, ColumnWidth, RowHeight } from '../constant'
 import { generateIds } from '../../uitls/dataId'
+import { ICell } from '../cell'
 
 const DefaultRowCount = 30
 const DefaultColumnCount = 10
 
-const honeysheetRef = Symbol('honeysheet')
-type ContainerElement = HTMLElement & { [honeysheetRef]?: Spreadsheet }
+type InitSheetOptions = {
+    cells: ICell[][]
+    name?: string
+    columnCount?: number // 列数
+    rowCount?: number // 行数
+    columnWidth?: number // 列宽
+    rowHeight?: number // 行高
+    authorization?: AuthorizationOption[] // 权限配置
+}
 
-export type SpreadSheetOptions = {
-    container: ContainerElement // 容器 querySelector 参数
-    id?: string // Spreadsheet ID
+export interface ServerHoneySheetOptions {
+    id: string
+    serverHost: string // 服务主机
+}
+
+export interface LocalHoneySheetOptions {
     name?: string // Spreadsheet 名称
     columnCount?: number // 默认列数
     rowCount?: number // 默认行数
     columnWidth?: number // 默认列宽
     rowHeight?: number // 默认行高
-    fontSize?: number // 默认字体大小
-    authorization?: AuthorizationOption[] // 权限配置
-    sheets: Partial<SheetOptions>[] // sheet 页配置
-    serverHost?: string // 服务主机
+    sheets: InitSheetOptions[] // sheet 页配置
 }
 
+export type SpreadSheetOptions = LocalHoneySheetOptions | ServerHoneySheetOptions
+
 export class Spreadsheet extends Destroyable {
+    private static readonly record = new WeakMap<HTMLDivElement, Spreadsheet>()
     id: string
     name: string
     sheetMap = new Map<SheetId, Sheet>()
     private currentSheetId: SheetId
-    private readonly renderer: IRenderer
 
-    constructor(opts: SpreadSheetOptions) {
+    defaultColumnCount: number // 默认列数
+    defaultRowCount: number // 默认行数
+    defaultColumnWidth: number // 默认列宽
+    defaultRowHeight: number // 默认行高
+
+    constructor(
+        container: HTMLDivElement | null, // div 容器
+        authorization: AuthorizationOption[], // 权限配置
+        opts: SpreadSheetOptions,
+    ) {
         super()
-        if (opts.container[honeysheetRef]) {
-            console.error(opts.container, 'already is a honeysheet')
+        if (!container) {
+            console.error(container, 'does not exist')
+            throw new Error('Container does not exist')
+        }
+
+        if (Spreadsheet.record.has(container)) {
+            console.error(container, 'already is a honeysheet')
             throw new Error('Already a honeysheet')
         }
-        this.id = opts.id || createUniqueID('honey')
-        this.renderer = new Canvas2dRenderer(opts.container)
-        this.name = opts.name || `New Honeycomb Spreadsheet`
 
-        const sheets = opts.sheets.map((item, index) => {
-            const rowCount = opts.rowCount || DefaultRowCount
-            const columnCount = opts.columnCount || DefaultColumnCount
-
-            const sheet = new Sheet({
-                name: item.name || `Sheet ${index}`,
-                columnIds: item.columnIds || generateIds(columnCount),
-                rowIds: item.rowIds || generateIds(rowCount),
-                id: item.id,
-                cells: item.cells,
-                columnWidth: item.columnWidth || opts.columnWidth,
-                rowHeight: item.rowHeight || opts.rowHeight,
-                authorization: item.authorization,
-            })
-
-            if (this.sheetMap.has(sheet.id)) {
-                throw new Error('duplicate sheet id ' + sheet.id)
-            }
-            this.sheetMap.set(sheet.id, sheet)
-            return sheet
-        })
-        if (sheets.length === 0) {
-            throw new Error(`sheets array can't be empty`)
-        }
-        this.currentSheetId = sheets[0].id
-
-        Logger.info('初始化 SpreadSheet=', opts.name)
-        if (opts.serverHost) {
+        if ('serverHost' in opts) {
             getConnection(opts.serverHost)
+            throw new Error('TODO: Honeysheet server')
+        } else {
+            this.id = createUniqueID('honey')
+            this.name = opts.name || `New Honeycomb Spreadsheet`
+            this.defaultColumnCount = opts.columnCount || DefaultColumnCount
+            this.defaultRowCount = opts.rowCount || DefaultRowCount
+            this.defaultColumnWidth = opts.columnWidth || ColumnWidth
+            this.defaultRowHeight = opts.rowHeight || RowHeight
+
+            const sheets = this.createSheetsFromInitData(opts.sheets)
+            if (sheets.length === 0) {
+                throw new Error(`sheets array can't be empty`)
+            }
+            this.currentSheetId = sheets[0].id
+            Logger.info('初始化 SpreadSheet=', opts.name)
         }
 
-        this.renderCurrentSheet()
-        opts.container[honeysheetRef] = this
-        this.onDestroy(() => delete opts.container[honeysheetRef])
+        const renderer = new Canvas2dRenderer(container)
+        renderer.renderSheet(this.currentSheet)
+        Spreadsheet.record.set(container, this)
+        this.onDestroy(() => Spreadsheet.record.delete(container))
     }
 
-    public get currentSheet(): Sheet {
+    private get currentSheet(): Sheet {
         const sheet = this.sheetMap.get(this.currentSheetId)
         if (!sheet) {
             throw new Error('current Sheet undefined.')
@@ -87,7 +97,24 @@ export class Spreadsheet extends Destroyable {
         return sheet
     }
 
-    public renderCurrentSheet() {
-        this.renderer.renderSheet(this.currentSheet)
+    private createSheetsFromInitData(options: InitSheetOptions[]): Sheet[] {
+        return options.map((item, index) => {
+            const rowCount = item.rowCount || this.defaultRowCount
+            const columnCount = item.columnCount || this.defaultColumnCount
+
+            const sheet = new Sheet({
+                id: createUniqueID('sheet'),
+                name: item.name || `Sheet ${index}`,
+                columnIds: generateIds(item.columnCount || columnCount),
+                rowIds: generateIds(item.rowCount || rowCount),
+                columnWidth: item.columnWidth,
+                rowHeight: item.rowHeight,
+                authorization: item.authorization || [],
+            })
+            sheet.setCellGrid(item.cells)
+
+            this.sheetMap.set(sheet.id, sheet)
+            return sheet
+        })
     }
 }

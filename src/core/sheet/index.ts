@@ -1,6 +1,5 @@
 import { Destroyable, Logger } from '../../tools'
 import { CellId, ICell } from '../cell'
-import { createUniqueID } from '../../uitls/randomId'
 import {
     AuthorizationOption,
     ColumnHeadHeight,
@@ -18,13 +17,13 @@ import { IRenderer } from '../renderer'
 export type CellRecord = { cell: ICell; rowId: RowId; columnId: ColumnId }
 
 export type SheetOptions = {
+    id: string // Spreadsheet ID
     name: string // Spreadsheet 名称
     columnIds: ColumnId[]
     rowIds: ColumnId[]
-    id?: string // Spreadsheet ID
+    authorization: AuthorizationOption[] // 权限配置
     columnWidth?: number // 默认列宽
     rowHeight?: number // 默认行高
-    authorization?: AuthorizationOption[] // 权限配置
     cells?: CellRecord[]
 }
 
@@ -44,7 +43,7 @@ export class Sheet extends Destroyable {
         super()
         Logger.info('初始化 sheet=', options.name)
         this.name = options.name
-        this.id = options.id || createUniqueID('sheet')
+        this.id = options.id
         this.columnIds = options.columnIds
         this.rowIds = options.rowIds
 
@@ -168,7 +167,7 @@ export class Sheet extends Destroyable {
         }
     }
 
-    public setCellGrid(data: (number | string)[][]): void {
+    public setCellGrid(data: ICell[][]): void {
         const rowCount = data.length
         const columnCount = data[0]?.length || 0
         if (rowCount > this.rowIds.length) {
@@ -188,7 +187,7 @@ export class Sheet extends Destroyable {
         forEach2dArray(data, (item, rowIndex, columnIndex) => {
             const cellId =
                 `${this.columnIds[columnIndex]}_${this.rowIds[rowIndex]}` satisfies CellId
-            this.cellMap.set(cellId, { v: item })
+            this.cellMap.set(cellId, item)
         })
     }
 

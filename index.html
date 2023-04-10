@@ -11,22 +11,20 @@
         <script type="module">
             import { Spreadsheet } from 'src'
 
-            const ss = new Spreadsheet({
-                container: document.getElementById('sheet'),
+            new Spreadsheet(document.getElementById('sheet'), [], {
                 // serverHost: 'localhost:9898',
                 name: '我的电子表格',
                 sheets: [
                     {
                         name: 'Sheet 1',
+                        cells: Array.from({ length: 10 }).map((_, row) =>
+                            Array.from({ length: 20 }).map((_, column) => ({
+                                v: `R${row}_C${column}`,
+                            })),
+                        ),
                     },
                 ],
             })
-            ss.currentSheet.setCellGrid(
-                Array.from({ length: 1000 }).map((_, row) =>
-                    Array.from({ length: 1000 }).map((_, column) => `R${row}_C${column}`),
-                ),
-            )
-            ss.renderCurrentSheet()
         </script>
     </body>
 </html>
