@@ -1,6 +1,6 @@
 import { Destroyable, Logger } from '../../tools'
 import { Sheet, SheetId } from '../sheet'
-import { getConnection } from '../../websocket'
+import { Server } from '../../server'
 import { Canvas2dRenderer } from '../renderer'
 import { createUniqueID } from '../../uitls/randomId'
 import { AuthorizationOption, ColumnWidth, RowHeight } from '../constant'
@@ -38,15 +38,15 @@ export type SpreadSheetOptions = LocalHoneySheetOptions | ServerHoneySheetOption
 
 export class Spreadsheet extends Destroyable {
     private static readonly record = new WeakMap<HTMLDivElement, Spreadsheet>()
-    id: string
+    public readonly id: string
     name: string
     sheetMap = new Map<SheetId, Sheet>()
-    private currentSheetId: SheetId
-
     defaultColumnCount: number // 默认列数
     defaultRowCount: number // 默认行数
     defaultColumnWidth: number // 默认列宽
     defaultRowHeight: number // 默认行高
+    private currentSheetId: SheetId
+    private readonly server?: Server
 
     constructor(
         container: HTMLDivElement | null, // div 容器
@@ -65,7 +65,8 @@ export class Spreadsheet extends Destroyable {
         }
 
         if ('serverHost' in opts) {
-            getConnection(opts.serverHost)
+            this.server = new Server(opts.serverHost)
+            this.server.getWorkbook(opts.id)
             throw new Error('TODO: Honeysheet server')
         } else {
             this.id = createUniqueID('honey')
