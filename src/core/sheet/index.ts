@@ -1,5 +1,5 @@
 import { Destroyable, Logger } from '../../tools'
-import { CellId, ICell } from '../cell'
+import { CellId, CellRecord, ICell } from '../cell'
 import {
     AuthorizationOption,
     ColumnHeadHeight,
@@ -13,8 +13,6 @@ import { generateIds } from '../../uitls/dataId'
 import { forEach2dArray } from '../../uitls/2dArray'
 import { SelectedArea } from '../renderer/canvas2d/selection'
 import { IRenderer } from '../renderer'
-
-export type CellRecord = { cell: ICell; rowId: RowId; columnId: ColumnId }
 
 export type SheetOptions = {
     id: string // Spreadsheet ID
