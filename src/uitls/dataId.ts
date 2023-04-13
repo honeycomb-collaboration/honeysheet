@@ -1,4 +1,4 @@
-// unsigned integer
+// unsigned integer, starts from 0
 export type DataId = number
 
 export function validDataId<T extends DataId>(id: T): T {

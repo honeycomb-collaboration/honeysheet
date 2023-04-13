@@ -1,7 +1,7 @@
 import type { IConnection } from '@honeycomb-co/connection'
 import { Destroyable } from '../tools'
 import { getConnection } from './websocket'
-import { ResponseWorkbook } from './ajax'
+import { ResponseSheet, ResponseWorkbook } from './ajax'
 
 export class Server extends Destroyable {
     private readonly socketConnection: IConnection
@@ -12,5 +12,9 @@ export class Server extends Destroyable {
 
     public getWorkbook(id: string): Promise<ResponseWorkbook> {
         return fetch(`//${this.host}/api/v1/workbook/${id}`).then((res) => res.json())
+    }
+
+    public getWorkbookSheets(id: string): Promise<ResponseSheet[]> {
+        return fetch(`//${this.host}/api/v1/workbook/${id}/sheet`).then((res) => res.json())
     }
 }

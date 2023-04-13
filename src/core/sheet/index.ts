@@ -19,9 +19,9 @@ export type SheetOptions = {
     name: string // Spreadsheet 名称
     columnIds: ColumnId[]
     rowIds: ColumnId[]
-    authorization: AuthorizationOption[] // 权限配置
-    columnWidth?: number // 默认列宽
-    rowHeight?: number // 默认行高
+    authorization?: AuthorizationOption[] // 权限配置
+    defaultColumnWidth?: number // 默认列宽
+    defaultRowHeight?: number // 默认行高
     cells?: CellRecord[]
 }
 
@@ -33,8 +33,8 @@ export class Sheet extends Destroyable {
     private readonly cellMap = new Map<CellId, ICell>()
     private readonly columnIds: ColumnId[]
     private readonly rowIds: RowId[]
-    private readonly columnWidth?: number // 默认列宽
-    private readonly rowHeight?: number // 默认行高
+    private readonly defaultColumnWidth?: number // 默认列宽
+    private readonly defaultRowHeight?: number // 默认行高
     private readonly authorization: Set<AuthorizationOption> // 权限配置
 
     constructor(options: SheetOptions) {
@@ -45,8 +45,8 @@ export class Sheet extends Destroyable {
         this.columnIds = options.columnIds
         this.rowIds = options.rowIds
 
-        this.columnWidth = options.columnWidth
-        this.rowHeight = options.rowHeight
+        this.defaultColumnWidth = options.defaultColumnWidth
+        this.defaultRowHeight = options.defaultRowHeight
         this.authorization = new Set(options.authorization)
 
         options.cells?.forEach((item) => {
