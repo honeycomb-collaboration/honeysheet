@@ -1,4 +1,4 @@
-export { Spreadsheet } from './core/spreadsheet/spreadsheet'
-export type { SpreadsheetOptions } from './core/spreadsheet/spreadsheet'
+export { Workbook } from './core/workbook/workbook'
+export type { WorkbookOptions } from './core/workbook/workbook'
 export type { SheetOptions, Sheet } from './core/sheet'
-export { createHoneysheetFromServer, createHoneysheetFromData } from './core/spreadsheet/create'
+export { createWorkbookFromServer, createWorkbookFromData } from './core/workbook/create'

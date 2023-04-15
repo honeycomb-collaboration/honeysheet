@@ -9,7 +9,7 @@ function bufferToString(buffer: BufferSource): Promise<string> {
 }
 
 export function getConnection(serverHost: string): IConnection {
-    const websocketUrl = `ws://${serverHost}/v1/spreadsheets/ws`
+    const websocketUrl = `ws://${serverHost}/v1/ws`
     const ConnectionInsideWorker = workerWrap(workerUrl)
     const connection: IConnection = new ConnectionInsideWorker(
         websocketUrl,

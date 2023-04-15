@@ -15,8 +15,8 @@ import { SelectedArea } from '../renderer/canvas2d/selection'
 import { IRenderer } from '../renderer'
 
 export type SheetOptions = {
-    id: string // Spreadsheet ID
-    name: string // Spreadsheet 名称
+    id: string // sheet ID
+    name: string // sheet 名称
     columnIds: ColumnId[]
     rowIds: ColumnId[]
     authorization?: AuthorizationOption[] // 权限配置

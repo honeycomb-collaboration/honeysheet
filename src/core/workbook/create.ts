@@ -1,4 +1,4 @@
-import { Spreadsheet } from './spreadsheet'
+import { Workbook } from './workbook'
 import { Server } from '../../server'
 import { Sheet } from '../sheet'
 import { AuthorizationOption, ColumnWidth, RowHeight } from '../constant'
@@ -9,7 +9,7 @@ import { generateIds } from '../../uitls/dataId'
 const DefaultRowCount = 30
 const DefaultColumnCount = 10
 
-export async function createHoneysheetFromServer(
+export async function createWorkbookFromServer(
     container: HTMLDivElement | null, // div 容器
     host: string,
     id: string,
@@ -20,24 +20,24 @@ export async function createHoneysheetFromServer(
         defaultColumnWidth?: number // 默认列宽
         defaultRowHeight?: number // 默认行高
     },
-): Promise<Spreadsheet> {
+): Promise<Workbook> {
     const server = new Server(host)
-    const honeysheetData = await server.getWorkbook(id)
-    const honeysheet = new Spreadsheet(container, {
-        name: honeysheetData.name || `New Honeycomb Spreadsheet`, // Spreadsheet 名称
+    const workbookData = await server.getWorkbook(id)
+    const workbook = new Workbook(container, {
+        name: workbookData.name || `New Honeysheet`,
         defaultColumnCount:
-            honeysheetData.defaultColumnCount || configs?.defaultColumnCount || DefaultColumnCount, // 默认列数
+            workbookData.defaultColumnCount || configs?.defaultColumnCount || DefaultColumnCount, // 默认列数
         defaultRowCount:
-            honeysheetData.defaultRowCount || configs?.defaultRowCount || DefaultRowCount, // 默认行数
+            workbookData.defaultRowCount || configs?.defaultRowCount || DefaultRowCount, // 默认行数
         defaultColumnWidth:
-            honeysheetData.defaultColumnWidth || configs?.defaultColumnWidth || ColumnWidth, // 默认列宽
-        defaultRowHeight: honeysheetData.defaultRowHeight || configs?.defaultRowHeight || RowHeight, // 默认行高
+            workbookData.defaultColumnWidth || configs?.defaultColumnWidth || ColumnWidth, // 默认列宽
+        defaultRowHeight: workbookData.defaultRowHeight || configs?.defaultRowHeight || RowHeight, // 默认行高
         // sheets?: Sheet[] // sheet 页配置
         server,
         // authorization:  // 权限配置
     })
     server.getWorkbookSheets(id).then((sheets) => {
-        honeysheet.addSheets(
+        workbook.addSheets(
             sheets.map(
                 (sheet, index) =>
                     new Sheet({
@@ -48,7 +48,7 @@ export async function createHoneysheetFromServer(
             ),
         )
     })
-    return honeysheet
+    return workbook
 }
 
 type InitSheetOptions = {
@@ -85,7 +85,7 @@ function createSheetsFromInitData(
     })
 }
 
-export function createHoneysheetFromData(
+export function createWorkbookFromData(
     container: HTMLDivElement | null, // div 容器
     sheets: InitSheetOptions[],
     configs?: {
@@ -96,19 +96,19 @@ export function createHoneysheetFromData(
         defaultColumnWidth?: number // 默认列宽
         defaultRowHeight?: number // 默认行高
     },
-): Spreadsheet {
+): Workbook {
     const ss = createSheetsFromInitData(
         sheets,
         configs?.defaultColumnCount || DefaultColumnCount,
         configs?.defaultRowCount || DefaultRowCount,
     )
-    return new Spreadsheet(container, {
+    return new Workbook(container, {
         defaultColumnCount: configs?.defaultColumnCount || DefaultColumnCount,
         defaultRowCount: configs?.defaultRowCount || DefaultRowCount,
         defaultColumnWidth: configs?.defaultColumnWidth || ColumnWidth,
         defaultRowHeight: configs?.defaultRowHeight || RowHeight,
 
-        name: configs?.name || `New Honeycomb Spreadsheet`,
+        name: configs?.name || `New Honeysheet`,
         sheets: ss,
         authorization: configs?.authorization,
     })

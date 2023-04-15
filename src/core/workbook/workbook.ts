@@ -4,19 +4,19 @@ import { Server } from '../../server'
 import { Canvas2dRenderer, IRenderer } from '../renderer'
 import { AuthorizationOption } from '../constant'
 
-export type SpreadsheetOptions = {
+export type WorkbookOptions = {
     defaultColumnCount: number // 默认列数
     defaultRowCount: number // 默认行数
     defaultColumnWidth: number // 默认列宽
     defaultRowHeight: number // 默认行高
-    name: string // Spreadsheet 名称
+    name: string // Workbook 名称
     sheets?: Sheet[] // sheet 页配置
     server?: Server
     authorization?: AuthorizationOption[] // 权限配置
 }
 
-export class Spreadsheet extends Destroyable {
-    private static readonly record = new WeakMap<HTMLDivElement, Spreadsheet>()
+export class Workbook extends Destroyable {
+    private static readonly record = new WeakMap<HTMLDivElement, Workbook>()
     public readonly name: string
     private readonly sheetMap = new Map<SheetId, Sheet>()
     private readonly defaultColumnCount: number // 默认列数
@@ -30,7 +30,7 @@ export class Spreadsheet extends Destroyable {
 
     constructor(
         container: HTMLDivElement | null, // div 容器
-        opts: SpreadsheetOptions,
+        opts: WorkbookOptions,
     ) {
         super()
         if (!container) {
@@ -38,7 +38,7 @@ export class Spreadsheet extends Destroyable {
             throw new Error('Container does not exist')
         }
 
-        if (Spreadsheet.record.has(container)) {
+        if (Workbook.record.has(container)) {
             console.error(container, 'already is a honeysheet')
             throw new Error('Already a honeysheet')
         }
@@ -57,9 +57,9 @@ export class Spreadsheet extends Destroyable {
             this.server = opts.server
         }
 
-        Logger.info('初始化 SpreadSheet=', opts.name)
-        Spreadsheet.record.set(container, this)
-        this.onDestroy(() => Spreadsheet.record.delete(container))
+        Logger.info('初始化 Workbook=', opts.name)
+        Workbook.record.set(container, this)
+        this.onDestroy(() => Workbook.record.delete(container))
     }
 
     public addSheets(sheets: Sheet[]) {
