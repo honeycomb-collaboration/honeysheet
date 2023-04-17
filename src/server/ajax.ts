@@ -1,5 +1,4 @@
 import { ColumnId } from '../core/column'
-import { CellRecord } from '../core/cell'
 import { RowId } from '../core/row'
 
 export interface ResponseWorkbook {
@@ -19,5 +18,3 @@ export interface ResponseSheet {
     defaultColumnWidth?: number // 默认列宽
     defaultRowHeight?: number // 默认行高
 }
-
-export type ResponseCellRecords = CellRecord[]

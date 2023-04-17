@@ -36,15 +36,18 @@ export async function createWorkbookFromServer(
         server,
         // authorization:  // 权限配置
     })
-    server.getWorkbookSheets(id).then((sheets) => {
+    server.getWorkbookSheets(id).then(async (sheets) => {
         workbook.addSheets(
-            sheets.map(
-                (sheet, index) =>
-                    new Sheet({
-                        ...sheet,
-                        name: sheet.name || `Sheet ${index + 1}`,
-                        authorization: [],
-                    }),
+            await Promise.all(
+                sheets.map(
+                    async (sheet, index) =>
+                        new Sheet({
+                            ...sheet,
+                            cells: await server.getSheetCells(sheet.id),
+                            name: sheet.name || `Sheet ${index + 1}`,
+                            authorization: [],
+                        }),
+                ),
             ),
         )
     })
