@@ -2,8 +2,10 @@ import { Sheet } from '../../sheet'
 import { RowId } from '../../row'
 import { ColumnId } from '../../column'
 import { Destroyable } from '../../../tools'
-import { IRenderer } from '../interface'
 import { FontSize, LineHeight } from '../../constant'
+import { Context } from '../../context'
+import { ActionType } from '../../action/action'
+import { getCellIdByRcId } from '../../cell/id'
 
 function createSelectionDiv(): HTMLDivElement {
     const div = document.createElement('div')
@@ -39,15 +41,15 @@ export class SelectedArea extends Destroyable {
     div = createSelectionDiv()
     constructor(
         private readonly sheet: Sheet,
-        private readonly renderer: IRenderer,
+        context: Context,
         public rowIds: Array<RowId>,
         public columnIds: Array<ColumnId>,
     ) {
         super()
-        this.listenForEnterEdit()
+        this.listenForEnterEdit(context)
         this.onDestroy(() => this.div.remove())
     }
-    private enterEdit = () => {
+    private enterEdit = (context: Context) => {
         const rowId = this.rowIds[this.rowIds.length - 1]
         const columnId = this.columnIds[this.columnIds.length - 1]
         const cell = this.sheet.getCell(
@@ -65,13 +67,17 @@ export class SelectedArea extends Destroyable {
 
         const quitEdit = () => {
             input.remove()
-            this.listenForEnterEdit()
+            this.listenForEnterEdit(context)
         }
         input.addEventListener('blur', quitEdit, { once: true })
         input.addEventListener('keydown', (event) => {
             if (event.code === 'Enter') {
-                this.sheet.updateCell(rowId, columnId, input.value)
-                this.renderer.renderCell(rowId, columnId)
+                context.workbook.dispatch({
+                    type: ActionType.UPDATE_CELL_V,
+                    sheetId: this.sheet.id,
+                    cellId: getCellIdByRcId(columnId, rowId),
+                    v: input.value,
+                })
                 input.blur()
             }
             if (event.code === 'Escape') {
@@ -80,8 +86,8 @@ export class SelectedArea extends Destroyable {
         })
     }
 
-    private listenForEnterEdit() {
-        this.div.addEventListener('dblclick', this.enterEdit, {
+    private listenForEnterEdit(context: Context) {
+        this.div.addEventListener('dblclick', () => this.enterEdit(context), {
             once: true,
         })
     }

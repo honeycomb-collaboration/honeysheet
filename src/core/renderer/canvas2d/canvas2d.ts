@@ -12,6 +12,7 @@ import {
 import { ColumnId, indexToColumnName } from '../../column'
 import { drawCell } from './cell'
 import { RowId } from '../../row'
+import { Context } from '../../context'
 
 const RightPadding = 120
 const BottomPadding = 60
@@ -28,7 +29,7 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
     private scrollLeft = 0
     private maxScrollLeft = 0
 
-    constructor(private readonly container: HTMLElement) {
+    constructor(private readonly container: HTMLElement, context: Context) {
         super()
         this.canvas.style.display = 'block'
 
@@ -49,7 +50,7 @@ export class Canvas2dRenderer extends Destroyable implements IRenderer {
 
         this.canvas.addEventListener('mousedown', (event) => {
             if (this.sheet) {
-                this.sheet.selectArea(this, {
+                this.sheet.selectArea(context, {
                     absoluteX: event.offsetX - RowHeadWidth + this.scrollLeft,
                     absoluteY: event.offsetY - ColumnHeadHeight + this.scrollTop,
                 })

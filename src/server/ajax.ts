@@ -1,5 +1,6 @@
 import { ColumnId } from '../core/column'
 import { RowId } from '../core/row'
+import { SheetId } from '../core/sheet'
 
 export interface ResponseWorkbook {
     id: string
@@ -11,7 +12,7 @@ export interface ResponseWorkbook {
 }
 
 export interface ResponseSheet {
-    id: string
+    id: SheetId
     columnIds: ColumnId[]
     rowIds: RowId[]
     name?: string

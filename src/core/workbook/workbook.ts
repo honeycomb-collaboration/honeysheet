@@ -3,6 +3,8 @@ import { Sheet, SheetId } from '../sheet'
 import { Server } from '../../server'
 import { Canvas2dRenderer, IRenderer } from '../renderer'
 import { AuthorizationOption } from '../constant'
+import { Action, ActionTarget, ActionType } from '../action/action'
+import { getRcIdByCellId } from '../cell'
 
 export type WorkbookOptions = {
     defaultColumnCount: number // 默认列数
@@ -15,7 +17,7 @@ export type WorkbookOptions = {
     authorization?: AuthorizationOption[] // 权限配置
 }
 
-export class Workbook extends Destroyable {
+export class Workbook extends Destroyable implements ActionTarget {
     private static readonly record = new WeakMap<HTMLDivElement, Workbook>()
     public readonly name: string
     private readonly sheetMap = new Map<SheetId, Sheet>()
@@ -43,7 +45,7 @@ export class Workbook extends Destroyable {
             throw new Error('Already a honeysheet')
         }
 
-        this.renderer = new Canvas2dRenderer(container)
+        this.renderer = new Canvas2dRenderer(container, { workbook: this })
         this.name = opts.name
         this.defaultColumnCount = opts.defaultColumnCount
         this.defaultRowCount = opts.defaultRowCount
@@ -70,5 +72,26 @@ export class Workbook extends Destroyable {
             this.currentSheetId = sheets[0].id
             this.renderer.renderSheet(sheets[0])
         }
+    }
+
+    public dispatch(action: Action) {
+        this.apply(action)
+        this.server?.sendAction(action)
+    }
+
+    public apply(action: Action) {
+        switch (action.type) {
+            case ActionType.UPDATE_CELL_V: {
+                const { v, sheetId, cellId } = action
+                const sheet = this.sheetMap.get(sheetId)
+                const { rowId, columnId } = getRcIdByCellId(cellId)
+                sheet?.updateCell(rowId, columnId, v)
+                this.renderer.renderCell(rowId, columnId)
+            }
+        }
+    }
+
+    public revoke(action: Action) {
+        console.warn('TODO revoke', action) // TODO
     }
 }

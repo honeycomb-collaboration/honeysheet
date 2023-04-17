@@ -12,10 +12,10 @@ import { ColumnId } from '../column'
 import { generateIds } from '../../uitls/dataId'
 import { forEach2dArray } from '../../uitls/2dArray'
 import { SelectedArea } from '../renderer/canvas2d/selection'
-import { IRenderer } from '../renderer'
+import { Context } from '../context'
 
 export type SheetOptions = {
-    id: string // sheet ID
+    id: SheetId // sheet ID
     name: string // sheet 名称
     columnIds: ColumnId[]
     rowIds: ColumnId[]
@@ -123,10 +123,10 @@ export class Sheet extends Destroyable {
         return Math.min(index, this.rowIds.length - 1)
     }
 
-    public selectArea(renderer: IRenderer, start: { absoluteX: number; absoluteY: number }): void {
+    public selectArea(context: Context, start: { absoluteX: number; absoluteY: number }): void {
         const columnIndex = this.getColumnIndex(start.absoluteX)
         const rowIndex = this.getRowIndex(start.absoluteY)
-        this.ensureSelectedAreas(renderer, [[this.rowIds[rowIndex]], [this.columnIds[columnIndex]]])
+        this.ensureSelectedAreas(context, [[this.rowIds[rowIndex]], [this.columnIds[columnIndex]]])
     }
 
     public iterateCellGrid(
@@ -200,7 +200,7 @@ export class Sheet extends Destroyable {
     }
 
     private ensureSelectedAreas(
-        renderer: IRenderer,
+        context: Context,
         ...areas: [Array<RowId>, Array<ColumnId>][]
     ): void {
         const count = areas.length
@@ -218,7 +218,7 @@ export class Sheet extends Destroyable {
         if (this.selection.length < count) {
             const newSas = areas
                 .slice(count - this.selection.length - 1)
-                .map((area) => new SelectedArea(this, renderer, area[0], area[1]))
+                .map((area) => new SelectedArea(this, context, area[0], area[1]))
             this.selection.forEach((sa, index) => {
                 sa.rowIds = areas[index][0]
                 sa.columnIds = areas[index][1]
