@@ -4,7 +4,7 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="icon" href="./favico.jpeg">
+        <link rel="icon" href="./favico.jpeg" />
         <title>Honeysheet</title>
     </head>
     <body>
@@ -16,16 +16,16 @@
             const serverHost = 'localhost:9898'
             const id = '123'
 
-            createWorkbookFromServer(container, serverHost, id)
-            // createWorkbookFromData(container, [
-            //     {
-            //         cells: Array.from({ length: 10 }).map((_, row) =>
-            //             Array.from({ length: 20 }).map((_, column) => ({
-            //                 v: `R${row}_C${column}`,
-            //             })),
-            //         ),
-            //     },
-            // ])
+            // createWorkbookFromServer(container, serverHost, id)
+            createWorkbookFromData(container, [
+                {
+                    cells: Array.from({ length: 10 }).map((_, row) =>
+                        Array.from({ length: 20 }).map((_, column) => ({
+                            v: `R${row}_C${column}`,
+                        })),
+                    ),
+                },
+            ])
         </script>
     </body>
 </html>

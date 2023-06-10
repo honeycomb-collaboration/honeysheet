@@ -15,7 +15,7 @@
       "baseUrl": ".",
       "lib": ["es2015", "dom", "webworker", "scripthost"],
       "types": [
-        "node",
+        "bun-types",
         "vite/client"
       ],
       "paths": {
@@ -33,4 +33,3 @@
       "test"
     ]
   }
-  
