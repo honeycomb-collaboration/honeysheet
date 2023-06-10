@@ -1,4 +1,4 @@
-import type { IConnection } from '@honeycomb-co/connection'
+import type { IConnection } from '@honeysheet/connection'
 import { Destroyable } from '../tools'
 import { getConnection } from './websocket'
 import { ResponseSheet, ResponseWorkbook } from './ajax'

@@ -1,35 +1,23 @@
 {
-    "compilerOptions": {
-      "isolatedModules": true,
-      "target": "ESNext",
-      "strict": true,
-      "noImplicitAny": true,
-      "strictNullChecks": true,
-      "resolveJsonModule": true,
-      "moduleResolution": "Node",
-      "noImplicitThis": true,
-      "esModuleInterop": true,
-      "alwaysStrict": true,
-      "experimentalDecorators": true,
-      "noEmit": true,
-      "baseUrl": ".",
-      "lib": ["es2015", "dom", "webworker", "scripthost"],
-      "types": [
-        "bun-types",
-        "vite/client"
-      ],
-      "paths": {
-        "test/*": [
-          "test/*"
-        ]
-      },
-      "skipLibCheck": true
-    },
-    "include": [
-      "src/**/*.ts"
-    ],
-    "exclude": [
-      "node_modules",
-      "test"
-    ]
-  }
+  "compilerOptions": {
+    "isolatedModules": true,
+    "target": "ESNext",
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "Node",
+    "noImplicitThis": true,
+    "esModuleInterop": true,
+    "alwaysStrict": true,
+    "experimentalDecorators": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "lib": ["DOM", "ESNext"],
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "node_modules",
+    "test"
+  ]
+}

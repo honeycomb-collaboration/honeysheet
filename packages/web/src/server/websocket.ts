@@ -1,5 +1,5 @@
-import { IConnection, workerWrap } from '@honeycomb-co/connection'
-import workerUrl from '@honeycomb-co/connection/sharedworker?url'
+import { IConnection, workerWrap } from '@honeysheet/connection'
+import workerUrl from '@honeysheet/connection/sharedworker?url'
 
 function bufferToString(buffer: BufferSource): Promise<string> {
     const blob = new Blob([buffer], {
@@ -13,7 +13,7 @@ export function getConnection(serverHost: string): IConnection {
     const ConnectionInsideWorker = workerWrap(workerUrl)
     const connection: IConnection = new ConnectionInsideWorker(
         websocketUrl,
-        (message: ArrayBuffer) => {
+        (message: ArrayBufferLike) => {
             bufferToString(message).then((message) => {
                 console.info(`${new Date().toLocaleTimeString()}\t${message}`)
             })

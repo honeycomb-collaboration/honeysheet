@@ -16,16 +16,16 @@
             const serverHost = 'localhost:9898'
             const id = '123'
 
-            // createWorkbookFromServer(container, serverHost, id)
-            createWorkbookFromData(container, [
-                {
-                    cells: Array.from({ length: 10 }).map((_, row) =>
-                        Array.from({ length: 20 }).map((_, column) => ({
-                            v: `R${row}_C${column}`,
-                        })),
-                    ),
-                },
-            ])
+            createWorkbookFromServer(container, serverHost, id)
+            // createWorkbookFromData(container, [
+            //     {
+            //         cells: Array.from({ length: 10 }).map((_, row) =>
+            //             Array.from({ length: 20 }).map((_, column) => ({
+            //                 v: `R${row}_C${column}`,
+            //             })),
+            //         ),
+            //     },
+            // ])
         </script>
     </body>
 </html>
