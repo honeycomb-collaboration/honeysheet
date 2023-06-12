@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "Node",
+    "module": "ESNext",
+    "types": ["bun-types"]
+  },
+  "exclude": ["node_modules"]
+}

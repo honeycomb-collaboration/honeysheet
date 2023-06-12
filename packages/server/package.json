@@ -1,0 +1,15 @@
+{
+  "name": "@honeysheet/server",
+  "version": "0.0.1",
+  "description": "Honeysheet server",
+  "main": "main.ts",
+  "scripts": {
+    "dev": "bun --hot main.ts"
+  },
+  "keywords": [],
+  "author": "Naeemo <naeemo@qq.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "bun-types": "^0.6.8"
+  }
+}

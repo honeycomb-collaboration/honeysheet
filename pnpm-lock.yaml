@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 importers:
 
   .:
@@ -43,6 +47,12 @@ importers:
       vitest:
         specifier: ^0.31.4
         version: 0.31.4(jsdom@22.1.0)
+
+  packages/server:
+    devDependencies:
+      bun-types:
+        specifier: ^0.6.8
+        version: 0.6.8
 
   packages/web:
     dependencies:
@@ -757,6 +767,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       fill-range: 7.0.1
+    dev: true
+
+  /bun-types@0.6.8:
+    resolution: {integrity: sha512-wo9pXffnYJQyYYLnyFk0wUbEtSIIChdJoqTPN1swubhUybW92T3le8rWLCjQCFry3fKDXvhHF3aDU+qE+G9c6A==}
     dev: true
 
   /cac@6.7.14:
