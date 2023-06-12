@@ -9,7 +9,7 @@ import {
 } from '../constant'
 import { RowId } from '../row'
 import { ColumnId } from '../column'
-import { generateIds } from '../../uitls/dataId'
+import { generateIds } from '@honeysheet/interface'
 import { forEach2dArray } from '../../uitls/2dArray'
 import { SelectedArea } from '../renderer/canvas2d/selection'
 import { Context } from '../context'

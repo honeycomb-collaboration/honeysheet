@@ -4,7 +4,7 @@ import { Sheet } from '../sheet'
 import { AuthorizationOption, ColumnWidth, RowHeight } from '../constant'
 import { ICell } from '../cell'
 import { createUniqueID } from '../../uitls/randomId'
-import { generateIds } from '../../uitls/dataId'
+import { generateIds } from '@honeysheet/interface'
 
 const DefaultRowCount = 30
 const DefaultColumnCount = 10

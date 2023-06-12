@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@honeysheet/connection": "workspace:*",
+    "@honeysheet/interface": "workspace:^",
     "nanoid": "^4.0.2"
   },
   "devDependencies": {

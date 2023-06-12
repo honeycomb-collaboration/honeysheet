@@ -1,0 +1,15 @@
+{
+  "name": "@honeysheet/interface",
+  "version": "0.0.1",
+  "description": "Honeysheet universal interfaces between server and client.",
+  "main": "index.ts",
+  "scripts": {
+    "test": "vitest"
+  },
+  "author": "Naeemo <naeemo@qq.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.1.3",
+    "vitest": "^0.32.0"
+  }
+}
