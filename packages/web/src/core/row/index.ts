@@ -1,1 +1,1 @@
-export type { IRow, RowId } from './interface'
+export type { IRow } from './interface'

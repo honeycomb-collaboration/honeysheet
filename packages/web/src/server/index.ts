@@ -1,10 +1,8 @@
 import type { IConnection } from '@honeysheet/connection'
 import { Destroyable } from '../tools'
 import { getConnection } from './websocket'
-import { ResponseSheet, ResponseWorkbook } from './ajax'
-import { CellRecord } from '../core/cell'
-import { SheetId } from '../core/sheet'
 import { Action } from '../core/action/action'
+import { CellRecordDTO, SheetDTO, SheetId, WorkbookDTO } from '@honeysheet/shared'
 
 export class Server extends Destroyable {
     private readonly socketConnection: IConnection
@@ -17,15 +15,15 @@ export class Server extends Destroyable {
         this.socketConnection.send(JSON.stringify(action))
     }
 
-    public getWorkbook(id: string): Promise<ResponseWorkbook> {
+    public getWorkbook(id: string): Promise<WorkbookDTO> {
         return fetch(`//${this.host}/api/v1/workbook/${id}`).then((res) => res.json())
     }
 
-    public getWorkbookSheets(id: string): Promise<ResponseSheet[]> {
+    public getWorkbookSheets(id: string): Promise<SheetDTO[]> {
         return fetch(`//${this.host}/api/v1/workbook/${id}/sheet`).then((res) => res.json())
     }
 
-    public getSheetCells(id: SheetId): Promise<CellRecord[]> {
+    public getSheetCells(id: SheetId): Promise<CellRecordDTO[]> {
         return fetch(`//${this.host}/api/v1/sheet/${id}/cell`).then((res) => res.json())
     }
 }

@@ -1,4 +1,4 @@
-import { validDataId, ColumnId, RowId } from '@honeysheet/interface'
+import { validDataId, ColumnId, RowId } from '@honeysheet/shared'
 
 export type CellId = `${ColumnId}_${RowId}` // column id and row id concatenated
 

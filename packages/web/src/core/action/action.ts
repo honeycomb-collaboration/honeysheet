@@ -1,5 +1,5 @@
-import { SheetId } from '../sheet'
 import { CellId } from '../cell'
+import { SheetId } from '@honeysheet/shared'
 
 export enum ActionType {
     UPDATE_CELL_V = 'UPDATE_CELL_V',

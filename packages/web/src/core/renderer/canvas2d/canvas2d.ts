@@ -9,9 +9,9 @@ import {
     RowHeadWidth,
     RowHeight,
 } from '../../constant'
-import { ColumnId, indexToColumnName } from '../../column'
+import { indexToColumnName } from '../../column'
 import { drawCell } from './cell'
-import { RowId } from '../../row'
+import { RowId, ColumnId } from '@honeysheet/shared'
 import { Context } from '../../context'
 
 const RightPadding = 120

@@ -11,5 +11,8 @@
   "license": "MIT",
   "devDependencies": {
     "bun-types": "^0.6.8"
+  },
+  "dependencies": {
+    "@honeysheet/shared": "workspace:^"
   }
 }

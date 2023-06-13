@@ -2,9 +2,8 @@ import { Workbook } from './workbook'
 import { Server } from '../../server'
 import { Sheet } from '../sheet'
 import { AuthorizationOption, ColumnWidth, RowHeight } from '../constant'
-import { ICell } from '../cell'
 import { createUniqueID } from '../../uitls/randomId'
-import { generateIds } from '@honeysheet/interface'
+import { CellDTO, generateIds } from '@honeysheet/shared'
 
 const DefaultRowCount = 30
 const DefaultColumnCount = 10
@@ -55,7 +54,7 @@ export async function createWorkbookFromServer(
 }
 
 type InitSheetOptions = {
-    cells: ICell[][] // TODO support primitive values
+    cells: CellDTO[][] // TODO support primitive values
     name?: string
     columnCount?: number // 列数
     rowCount?: number // 行数

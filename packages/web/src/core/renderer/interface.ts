@@ -1,7 +1,6 @@
 import { Sheet } from '../sheet'
 import { Destroyable } from '../../tools'
-import { RowId } from '../row'
-import { ColumnId } from '../column'
+import { ColumnId, RowId } from '@honeysheet/shared'
 
 export interface IRenderer extends Destroyable {
     renderSheet(sheet: Sheet): void

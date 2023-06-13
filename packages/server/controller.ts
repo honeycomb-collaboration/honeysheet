@@ -1,10 +1,8 @@
-import { Workbook } from './workbook'
-import { Sheet } from './sheet'
-import { CellRecord } from './cell'
+import { CellRecordDTO, SheetDTO, WorkbookDTO } from '@honeysheet/shared'
 
 export type ControllerFunction = (request: Request) => Response | void
 
-const workbook: Workbook = {
+const workbook: WorkbookDTO = {
     id: 'honeysheet_id',
     name: 'My Honeysheet',
     defaultColumnCount: 36, // 默认列数
@@ -13,7 +11,7 @@ const workbook: Workbook = {
     defaultRowHeight: 40, // 默认行高
 }
 
-const sheets: Sheet[] = [
+const sheets: SheetDTO[] = [
     {
         id: '1',
         name: 'Sheet 1',
@@ -22,7 +20,7 @@ const sheets: Sheet[] = [
     },
 ]
 
-const cells: CellRecord[] = [
+const cells: CellRecordDTO[] = [
     {
         columnId: 0,
         rowId: 0,
@@ -31,25 +29,23 @@ const cells: CellRecord[] = [
 ]
 
 export function GetWorkbook(request: Request) {
-    const res = new Response(JSON.stringify(workbook), {
+    return new Response(JSON.stringify(workbook), {
         status: 200,
         headers: {
             'Access-Control-Allow-Origin': 'http://localhost:5173',
             'Content-Type': 'application/json; charset=utf-8',
         },
     })
-    return res
 }
 
 export function GetWorkbookSheets(request: Request) {
-    const res = new Response(JSON.stringify(sheets), {
+    return new Response(JSON.stringify(sheets), {
         status: 200,
         headers: {
             'Access-Control-Allow-Origin': 'http://localhost:5173',
             'Content-Type': 'application/json; charset=utf-8',
         },
     })
-    return res
 }
 
 export function GetSheet(request: Request) {
@@ -57,14 +53,13 @@ export function GetSheet(request: Request) {
 }
 
 export function GetSheetCells(request: Request) {
-    const res = new Response(JSON.stringify(cells), {
+    return new Response(JSON.stringify(cells), {
         status: 200,
         headers: {
             'Access-Control-Allow-Origin': 'http://localhost:5173',
             'Content-Type': 'application/json; charset=utf-8',
         },
     })
-    return res
 }
 
 export function GetCell(request: Request) {
@@ -72,9 +67,8 @@ export function GetCell(request: Request) {
 }
 
 export function TODO(request: Request) {
-    const res = new Response(null, {
+    return new Response(null, {
         status: 404,
         headers: { 'Access-Control-Allow-Origin': 'http://localhost:5173' },
     })
-    return res
 }

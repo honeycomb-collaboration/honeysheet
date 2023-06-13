@@ -1,5 +1,5 @@
 import { Destroyable, Logger } from '../../tools'
-import { CellId, CellRecord, ICell } from '../cell'
+import { CellId } from '../cell'
 import {
     AuthorizationOption,
     ColumnHeadHeight,
@@ -7,9 +7,7 @@ import {
     RowHeadWidth,
     RowHeight,
 } from '../constant'
-import { RowId } from '../row'
-import { ColumnId } from '../column'
-import { generateIds } from '@honeysheet/interface'
+import { CellDTO, CellRecordDTO, ColumnId, generateIds, RowId, SheetId } from '@honeysheet/shared'
 import { forEach2dArray } from '../../uitls/2dArray'
 import { SelectedArea } from '../renderer/canvas2d/selection'
 import { Context } from '../context'
@@ -22,15 +20,13 @@ export type SheetOptions = {
     authorization?: AuthorizationOption[] // 权限配置
     defaultColumnWidth?: number // 默认列宽
     defaultRowHeight?: number // 默认行高
-    cells?: CellRecord[]
+    cells?: CellRecordDTO[]
 }
-
-export type SheetId = string
 
 export class Sheet extends Destroyable {
     public readonly id: SheetId
     public readonly name: string
-    private readonly cellMap = new Map<CellId, ICell>()
+    private readonly cellMap = new Map<CellId, CellDTO>()
     private readonly columnIds: ColumnId[]
     private readonly rowIds: RowId[]
     private readonly defaultColumnWidth?: number // 默认列宽
@@ -73,7 +69,7 @@ export class Sheet extends Destroyable {
 
     private selection: SelectedArea[] = []
 
-    getCell(rowId: RowId, columnId: ColumnId): ICell {
+    getCell(rowId: RowId, columnId: ColumnId): CellDTO {
         const cell = this.cellMap.get(`${columnId}_${rowId}`)
         if (!cell) {
             const err = `no cell with columnId=${columnId} rowId=${rowId}`
@@ -141,7 +137,7 @@ export class Sheet extends Destroyable {
             startColumnIndex: number
             endColumnIndex: number
         },
-        iteratee: (rowIndex: number, columnIndex: number, cell?: ICell) => void,
+        iteratee: (rowIndex: number, columnIndex: number, cell?: CellDTO) => void,
     ): void {
         for (let rowIndex = startRowIndex; rowIndex <= endRowIndex; rowIndex++) {
             const rowId = this.rowIds[rowIndex]
@@ -165,7 +161,7 @@ export class Sheet extends Destroyable {
         }
     }
 
-    public setCellGrid(data: ICell[][]): void {
+    public setCellGrid(data: CellDTO[][]): void {
         const rowCount = data.length
         const columnCount = data[0]?.length || 0
         if (rowCount > this.rowIds.length) {

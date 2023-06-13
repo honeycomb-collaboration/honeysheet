@@ -4,7 +4,7 @@ export type ColumnId = DataId
 export type RowId = DataId
 export type SheetId = string
 
-export interface ResponseWorkbook {
+export interface WorkbookDTO {
     id: string
     name?: string
     defaultColumnCount?: number // 默认列数
@@ -13,7 +13,7 @@ export interface ResponseWorkbook {
     defaultRowHeight?: number // 默认行高
 }
 
-export interface ResponseSheet {
+export interface SheetDTO {
     id: SheetId
     columnIds: ColumnId[]
     rowIds: RowId[]
@@ -22,4 +22,10 @@ export interface ResponseSheet {
     defaultRowHeight?: number // 默认行高
 }
 
-export { validDataId, generateIds, type DataId }
+export interface CellDTO {
+    v: string | number
+}
+
+export type CellRecordDTO = { cell: CellDTO; rowId: RowId; columnId: ColumnId }
+
+export { validDataId, generateIds }

@@ -1,6 +1,5 @@
 import { Sheet } from '../../sheet'
-import { RowId } from '../../row'
-import { ColumnId } from '../../column'
+import { ColumnId, RowId } from '@honeysheet/shared'
 import { Destroyable } from '../../../tools'
 import { FontSize, LineHeight } from '../../constant'
 import { Context } from '../../context'

@@ -1,4 +1,4 @@
-export type { IColumn, ColumnId } from './interface'
+export type { IColumn } from './interface'
 
 /**
  * 列名转为序号
