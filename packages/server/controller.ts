@@ -1,6 +1,7 @@
 import { CellRecordDTO, SheetDTO, WorkbookDTO } from '@honeysheet/shared'
+import type { Server } from 'bun'
 
-export type ControllerFunction = (request: Request) => Response | void
+export type ControllerFunction = (request: Request, server: Server) => Response | void
 
 const workbook: WorkbookDTO = {
     id: 'honeysheet_id',
@@ -64,6 +65,13 @@ export function GetSheetCells(request: Request) {
 
 export function GetCell(request: Request) {
     //
+}
+
+export function UpgradeWebSocket(request: Request, server: Server) {
+    if (server.upgrade(request)) {
+        return
+    }
+    return new Response('Upgrade failed :(', { status: 500 })
 }
 
 export function TODO(request: Request) {

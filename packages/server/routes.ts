@@ -6,6 +6,7 @@ import {
     GetWorkbook,
     GetWorkbookSheets,
     TODO,
+    UpgradeWebSocket,
 } from './controller'
 
 type Method = 'GET' | 'POST'
@@ -32,7 +33,7 @@ const routes: Array<[Method, string, ControllerFunction]> = [
     // get a sheet's specific cell
     ['GET', '/api/v1/sheet/:sheetId/cell/:cellId', GetCell],
     // WebSocket endpoint
-    ['GET', '/api/v1/ws', TODO],
+    ['GET', '/api/v1/ws', UpgradeWebSocket],
 ]
 
 function matchUrl(pathname: string, endpoint: string): boolean {
