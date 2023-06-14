@@ -1,5 +1,6 @@
 import { Logger } from '../logger/logger'
 import { Heartbeat } from './heartbeat'
+import { HEARTBEAT_MESSAGE } from '../constant/constant'
 
 export interface IConnection {
     send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void
@@ -45,7 +46,7 @@ export class Connection implements IConnection {
         const ws = new WebSocket(url)
         ws.binaryType = 'arraybuffer'
         ws.onmessage = function (evt) {
-            if (evt.data.byteLength === 0) {
+            if (evt.data === HEARTBEAT_MESSAGE.PONG) {
                 logger.debug('PONG')
                 return
             }

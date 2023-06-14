@@ -50,6 +50,9 @@ importers:
 
   packages/server:
     dependencies:
+      '@honeysheet/connection':
+        specifier: workspace:^
+        version: link:../connection
       '@honeysheet/shared':
         specifier: workspace:^
         version: link:../shared

@@ -13,6 +13,7 @@
     "bun-types": "^0.6.8"
   },
   "dependencies": {
+    "@honeysheet/connection": "workspace:^",
     "@honeysheet/shared": "workspace:^"
   }
 }
