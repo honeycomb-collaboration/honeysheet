@@ -67,13 +67,6 @@ export function GetCell(request: Request) {
     //
 }
 
-export function UpgradeWebSocket(request: Request, server: Server) {
-    if (server.upgrade(request)) {
-        return
-    }
-    return new Response('Upgrade failed :(', { status: 500 })
-}
-
 export function handleAction(ws: ServerWebSocket, action: Action): Action {
     switch (action.type) {
         case ActionType.UPDATE_CELL_V: {

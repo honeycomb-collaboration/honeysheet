@@ -58,6 +58,7 @@ export class Workbook extends Destroyable implements ActionTarget {
         }
         if (opts.server) {
             this.server = opts.server
+            this.onDestroy(this.server.onAction((action) => this.apply(action)))
         }
 
         Logger.info('初始化 Workbook=', opts.name)
