@@ -1,5 +1,5 @@
-import { CellRecordDTO, SheetDTO, WorkbookDTO } from '@honeysheet/shared'
-import type { Server } from 'bun'
+import { Action, ActionType, CellRecordDTO, SheetDTO, WorkbookDTO } from '@honeysheet/shared'
+import type { Server, ServerWebSocket } from 'bun'
 
 export type ControllerFunction = (request: Request, server: Server) => Response | void
 
@@ -72,6 +72,15 @@ export function UpgradeWebSocket(request: Request, server: Server) {
         return
     }
     return new Response('Upgrade failed :(', { status: 500 })
+}
+
+export function handleAction(ws: ServerWebSocket, action: Action): Action {
+    switch (action.type) {
+        case ActionType.UPDATE_CELL_V: {
+            cells[0].cell.v = action.v
+            return action
+        }
+    }
 }
 
 export function TODO(request: Request) {

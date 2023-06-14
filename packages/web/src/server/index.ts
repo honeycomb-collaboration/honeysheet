@@ -1,8 +1,7 @@
 import type { IConnection } from '@honeysheet/connection'
 import { Destroyable } from '../tools'
 import { getConnection } from './websocket'
-import { Action } from '../core/action/action'
-import { CellRecordDTO, SheetDTO, SheetId, WorkbookDTO } from '@honeysheet/shared'
+import { Action, CellRecordDTO, SheetDTO, SheetId, WorkbookDTO } from '@honeysheet/shared'
 
 export class Server extends Destroyable {
     private readonly socketConnection: IConnection

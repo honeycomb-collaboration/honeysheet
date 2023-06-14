@@ -3,13 +3,13 @@ import { Heartbeat } from './heartbeat'
 import { HEARTBEAT_MESSAGE } from '../constant/constant'
 
 export interface IConnection {
-    send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void
+    send(data: string): void
 
     close(code?: number, reason?: string): void
 }
 
 export interface ConnectionMessageHandler {
-    (message: ArrayBufferLike): unknown
+    (message: string): unknown
 }
 
 export class Connection implements IConnection {
@@ -23,7 +23,7 @@ export class Connection implements IConnection {
         this.ws = this.spawnWS(url, messageHandler)
     }
 
-    public send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void {
+    public send(data: string): void {
         Connection.logger.debug('send', data)
         this.ws.send(data)
         this.heartbeat.reset(this.ws, 'just sent some data')
@@ -37,20 +37,16 @@ export class Connection implements IConnection {
         this.ws.close(code, Connection.INTERNAL_CLOSE + reason)
     }
 
-    private spawnWS(
-        url: string | URL,
-        messageHandler: (message: ArrayBufferLike) => unknown,
-    ): WebSocket {
+    private spawnWS(url: string | URL, messageHandler: (message: string) => unknown): WebSocket {
         Connection.logger.debug('spawn WebSocket')
         const logger = new Logger('WebSocket')
         const ws = new WebSocket(url)
-        ws.binaryType = 'arraybuffer'
-        ws.onmessage = function (evt) {
+        ws.onmessage = function (evt: MessageEvent<string>) {
             if (evt.data === HEARTBEAT_MESSAGE.PONG) {
                 logger.debug('PONG')
                 return
             }
-            logger.debug('message', evt, evt.data)
+            logger.debug('message', typeof evt.data, evt.data)
             messageHandler(evt.data)
         }
         ws.onerror = function (error) {

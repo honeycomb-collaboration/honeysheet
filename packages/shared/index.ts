@@ -1,8 +1,6 @@
-import { DataId, generateIds, validDataId } from './dataId'
-
-export type ColumnId = DataId
-export type RowId = DataId
-export type SheetId = string
+import { generateIds, validDataId } from './dataId'
+import type { ColumnId, RowId, SheetId } from './core'
+import { type Action, ActionType } from './action'
 
 export interface WorkbookDTO {
     id: string
@@ -28,4 +26,5 @@ export interface CellDTO {
 
 export type CellRecordDTO = { cell: CellDTO; rowId: RowId; columnId: ColumnId }
 
-export { validDataId, generateIds }
+export { validDataId, generateIds, ActionType }
+export type { ColumnId, RowId, SheetId, Action }

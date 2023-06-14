@@ -3,9 +3,9 @@ import { Sheet } from '../sheet'
 import { Server } from '../../server'
 import { Canvas2dRenderer, IRenderer } from '../renderer'
 import { AuthorizationOption } from '../constant'
-import { Action, ActionTarget, ActionType } from '../action/action'
+import { ActionTarget } from '../action/action'
 import { getRcIdByCellId } from '../cell'
-import { SheetId } from '@honeysheet/shared'
+import { Action, ActionType, SheetId } from '@honeysheet/shared'
 
 export type WorkbookOptions = {
     defaultColumnCount: number // 默认列数

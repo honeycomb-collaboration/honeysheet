@@ -25,22 +25,13 @@ export function workerWrap(workerUrl: string) {
             sharedWorker.port.postMessage({ url: this.url })
         }
 
-        public send(message: string | ArrayBufferLike | Blob | ArrayBufferView): void {
+        public send(message: string): void {
             const data: MessagePortToWorkerData = {
                 url: this.url,
                 payload: message,
             }
 
-            if (
-                // message instanceof SharedArrayBuffer ||
-                message instanceof ArrayBuffer
-            ) {
-                sharedWorker.port.postMessage(data, {
-                    transfer: [message],
-                })
-            } else {
-                sharedWorker.port.postMessage(data)
-            }
+            sharedWorker.port.postMessage(data)
         }
 
         public close(): void {

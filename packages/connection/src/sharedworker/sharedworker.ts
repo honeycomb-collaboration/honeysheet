@@ -18,7 +18,7 @@ function initConnection(url: string, port: MessagePort): Connection {
     if (preConn) {
         conn = preConn
     } else {
-        conn = new Connection(url, (message: ArrayBufferLike) => handleServerMessage(message, url))
+        conn = new Connection(url, (message: string) => handleServerMessage(message, url))
         urlToConn.set(url, conn)
     }
     const ports = urlToPorts.get(url)
@@ -58,7 +58,7 @@ function onPortMessageError(port: MessagePort, messageEvent: MessageEvent) {
  * @param message
  * @param url
  */
-function handleServerMessage(message: ArrayBufferLike, url: string) {
+function handleServerMessage(message: string, url: string) {
     logger.info('handle conn message', message, url)
     const mpd: MessagePortFromWorkerData = { url, payload: message }
     const ports = urlToPorts.get(url)

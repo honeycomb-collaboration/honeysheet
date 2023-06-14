@@ -1,9 +1,8 @@
 import { Sheet } from '../../sheet'
-import { ColumnId, RowId } from '@honeysheet/shared'
+import { ActionType, ColumnId, RowId } from '@honeysheet/shared'
 import { Destroyable } from '../../../tools'
 import { FontSize, LineHeight } from '../../constant'
 import { Context } from '../../context'
-import { ActionType } from '../../action/action'
 import { getCellIdByRcId } from '../../cell/id'
 
 function createSelectionDiv(): HTMLDivElement {

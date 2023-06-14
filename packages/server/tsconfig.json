@@ -4,7 +4,8 @@
     "strict": true,
     "moduleResolution": "Node",
     "module": "ESNext",
-    "types": ["bun-types"]
+    "types": ["bun-types"],
+    "baseUrl": "."
   },
   "exclude": ["node_modules"]
 }
