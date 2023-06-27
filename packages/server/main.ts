@@ -4,8 +4,8 @@ import { websocket } from './websocket'
 
 export default {
     port: 9898,
+    // @ts-expect-error may return void
     fetch(request: Request, server: Server) {
-        console.info(request.url)
         const controller = resolveController(request)
         return controller(request, server)
     },

@@ -1,4 +1,4 @@
-import { Server, ServerWebSocket, WebSocketHandler } from 'bun'
+import { Server, WebSocketHandler } from 'bun'
 import { HEARTBEAT_MESSAGE } from '@honeysheet/connection'
 import { Action } from '@honeysheet/shared'
 import { handleAction } from './controller'
@@ -16,10 +16,11 @@ export function UpgradeWebSocketController(request: Request, server: Server) {
 export const websocket: WebSocketHandler<ContextData> = {
     perMessageDeflate: true,
     open(ws) {
+        console.debug('websocket opened from', ws.remoteAddress)
         ws.subscribe(topic)
     },
     close(ws, code, message) {
-        console.info('websocket close', code, message)
+        console.debug('websocket closed with', ws.remoteAddress, { code, message })
         ws.unsubscribe(topic)
     },
     message(ws, message: string | Uint8Array) {

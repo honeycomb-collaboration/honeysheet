@@ -10,7 +10,7 @@
   "author": "Naeemo <naeemo@qq.com>",
   "license": "MIT",
   "devDependencies": {
-    "bun-types": "^0.6.8"
+    "bun-types": "^0.6.10"
   },
   "dependencies": {
     "@honeysheet/connection": "workspace:^",

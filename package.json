@@ -6,13 +6,13 @@
     "url": "https://github.com/honeycomb-collaboration/honeysheet/issues"
   },
   "scripts": {
-    "dev": "pnpm -C packages/web dev",
-    "build": "pnpm -C packages/web build"
+    "dev": "pnpm -C packages/web dev & pnpm -C packages/server dev",
+    "build:web": "pnpm -C packages/web build"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.59.9",
-    "@typescript-eslint/parser": "^5.59.9",
-    "eslint": "^8.42.0",
+    "@typescript-eslint/eslint-plugin": "^5.60.1",
+    "@typescript-eslint/parser": "^5.60.1",
+    "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.8",

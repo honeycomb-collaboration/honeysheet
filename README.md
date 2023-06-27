@@ -1,7 +1,7 @@
 # Honeysheet
 
 ```shell
-pnpm install
+pnpm install --frozen-lockfile
 
 pnpm dev
 ```

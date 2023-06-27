@@ -9,7 +9,6 @@
   "author": "Naeemo <naeemo@qq.com>",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.1.3",
     "vitest": "^0.32.0"
   }
 }
