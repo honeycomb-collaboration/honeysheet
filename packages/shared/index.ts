@@ -1,6 +1,6 @@
 import { generateIds, validDataId } from './dataId'
 import type { ColumnId, RowId, SheetId } from './core'
-import { type Action, ActionType } from './action'
+import { type Action, type ActionResponse, ActionType } from './action'
 
 export interface WorkbookDTO {
     id: string

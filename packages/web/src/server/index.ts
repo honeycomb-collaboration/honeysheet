@@ -1,18 +1,26 @@
 import type { IConnection } from '@honeysheet/connection'
 import { Destroyable } from '../tools'
 import { getConnection } from './websocket'
-import { Action, CellRecordDTO, SheetDTO, SheetId, WorkbookDTO } from '@honeysheet/shared'
+import {
+    Action,
+    ActionType,
+    CellRecordDTO,
+    SheetDTO,
+    SheetId,
+    WorkbookDTO,
+} from '@honeysheet/shared'
 
 type ActionHandler = (action: Action) => unknown
 
 export class Server extends Destroyable {
     private readonly socketConnection: IConnection
     private readonly actionHandlers = new Set<ActionHandler>()
-    constructor(private readonly host: string) {
+    constructor(private readonly host: string, private readonly workbookId: string) {
         super()
         this.socketConnection = getConnection(host, (action) => {
             this.actionHandlers.forEach((ah) => ah(action))
         })
+        this.sendAction({ type: ActionType.OPEN, workbookId })
     }
 
     public sendAction(action: Action): void {

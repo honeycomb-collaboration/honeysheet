@@ -20,7 +20,7 @@ export async function createWorkbookFromServer(
         defaultRowHeight?: number // 默认行高
     },
 ): Promise<Workbook> {
-    const server = new Server(host)
+    const server = new Server(host, id)
     const workbookData = await server.getWorkbook(id)
     const workbook = new Workbook(container, {
         name: workbookData.name || `New Honeysheet`,
