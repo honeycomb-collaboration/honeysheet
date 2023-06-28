@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@honeysheet/connection": "workspace:^",
-    "@honeysheet/shared": "workspace:^"
+    "@honeysheet/shared": "workspace:^",
+    "nanoid": "^4.0.2"
   }
 }

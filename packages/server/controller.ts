@@ -1,5 +1,16 @@
-import { Action, ActionType, CellRecordDTO, SheetDTO, WorkbookDTO } from '@honeysheet/shared'
+import {
+    Action,
+    ActionBroadcast,
+    ActionType,
+    BROADCAST_HEAD,
+    CellRecordDTO,
+    RESPONSE_HEAD,
+    SheetDTO,
+    WorkbookDTO,
+} from '@honeysheet/shared'
 import type { Server, ServerWebSocket } from 'bun'
+import { ActionResponse } from '@honeysheet/shared/action'
+import { nanoid } from 'nanoid'
 
 export type ControllerFunction = (request: Request, server: Server) => Response | void
 
@@ -67,11 +78,25 @@ export function GetCell(request: Request) {
     //
 }
 
-export function handleAction(ws: ServerWebSocket, action: Action): Action {
+export function handleAction(
+    ws: ServerWebSocket,
+    action: Action,
+): [ActionResponse, ActionBroadcast] {
     switch (action.type) {
         case ActionType.UPDATE_CELL_V: {
             cells[0].cell.v = action.v
-            return action
+            return [
+                [RESPONSE_HEAD, { type: ActionType.UPDATE_CELL_V, ok: true }],
+                [BROADCAST_HEAD, action],
+            ]
+        }
+        case ActionType.OPEN: {
+            // TODO
+            const sessionId = nanoid()
+            return [
+                [RESPONSE_HEAD, { type: ActionType.OPEN, sessionId }],
+                [BROADCAST_HEAD, { type: ActionType.OPEN, sessionId }],
+            ]
         }
     }
 }

@@ -17,6 +17,7 @@ export class Connection implements IConnection {
     private static readonly logger = new Logger('Connection')
     private readonly heartbeat: Heartbeat = new Heartbeat()
     private ws: WebSocket
+    private sendDataCache: string[] = []
     private reconnectCount = 0
 
     constructor(url: string | URL, messageHandler: ConnectionMessageHandler) {
@@ -25,8 +26,12 @@ export class Connection implements IConnection {
 
     public send(data: string): void {
         Connection.logger.debug('send', data)
-        this.ws.send(data)
-        this.heartbeat.reset(this.ws, 'just sent some data')
+        if (this.ws.readyState === WebSocket.OPEN) {
+            this.ws.send(data)
+            this.heartbeat.reset(this.ws, 'just sent some data')
+        } else {
+            this.sendDataCache.push(data)
+        }
     }
 
     public close(code?: number, reason?: string): void {
@@ -63,6 +68,9 @@ export class Connection implements IConnection {
         ws.onopen = (evt) => {
             logger.debug('open', evt)
             this.reconnectCount = 0
+            this.sendDataCache.forEach((data) => {
+                this.ws.send(data)
+            })
             this.heartbeat.start(ws)
         }
         this.ws = ws

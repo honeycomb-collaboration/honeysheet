@@ -37,4 +37,25 @@ type EditActionResponse = {
     ok: boolean
 }
 
-export type ActionResponse = OpenActionResponse | EditActionResponse
+export const RESPONSE_HEAD = 1
+
+export type ActionResponse = [typeof RESPONSE_HEAD, OpenActionResponse | EditActionResponse]
+
+/**
+ * Broadcasts
+ */
+
+type OpenActionBroadcast = {
+    type: ActionType.OPEN
+    sessionId: string
+}
+
+type EditActionBroadcast = {
+    type: ActionType.UPDATE_CELL_V
+    sheetId: SheetId
+    cellId: CellId
+    v: string | number
+}
+
+export const BROADCAST_HEAD = 2
+export type ActionBroadcast = [typeof BROADCAST_HEAD, OpenActionBroadcast | EditActionBroadcast]

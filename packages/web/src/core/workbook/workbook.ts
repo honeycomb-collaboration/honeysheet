@@ -5,7 +5,15 @@ import { Canvas2dRenderer, IRenderer } from '../renderer'
 import { AuthorizationOption } from '../constant'
 import { ActionTarget } from '../action/action'
 import { getRcIdByCellId } from '../cell'
-import { Action, ActionType, SheetId } from '@honeysheet/shared'
+import {
+    Action,
+    type ActionBroadcast,
+    type ActionResponse,
+    ActionType,
+    BROADCAST_HEAD,
+    RESPONSE_HEAD,
+    SheetId,
+} from '@honeysheet/shared'
 
 export type WorkbookOptions = {
     defaultColumnCount: number // 默认列数
@@ -58,7 +66,8 @@ export class Workbook extends Destroyable implements ActionTarget {
         }
         if (opts.server) {
             this.server = opts.server
-            this.onDestroy(this.server.onAction((action) => this.apply(action)))
+            this.server.onAction((action) => this.handle(action))
+            this.onDestroy(() => this.server?.destroy())
         }
 
         Logger.info('初始化 Workbook=', opts.name)
@@ -73,6 +82,41 @@ export class Workbook extends Destroyable implements ActionTarget {
         if (!this.currentSheetId && sheets[0]) {
             this.currentSheetId = sheets[0].id
             this.renderer.renderSheet(sheets[0])
+        }
+    }
+
+    private handle([head, ab]: ActionResponse | ActionBroadcast) {
+        if (head === RESPONSE_HEAD) {
+            switch (ab.type) {
+                case ActionType.OPEN: {
+                    console.warn('TODO handle open response', ab) // TODO
+                    break
+                }
+                case ActionType.UPDATE_CELL_V: {
+                    const { ok } = ab
+                    if (!ok) {
+                        console.warn(
+                            'TODO handle action response not ok, should interrupt later editing',
+                            ab,
+                        ) // TODO
+                    }
+                    break
+                }
+            }
+        } else if (head === BROADCAST_HEAD) {
+            switch (ab.type) {
+                case ActionType.OPEN: {
+                    console.warn('TODO handle open broadcast', ab) // TODO
+                    break
+                }
+                case ActionType.UPDATE_CELL_V: {
+                    const { v, sheetId, cellId } = ab
+                    const sheet = this.sheetMap.get(sheetId)
+                    const { rowId, columnId } = getRcIdByCellId(cellId)
+                    sheet?.updateCell(rowId, columnId, v)
+                    this.renderer.renderCell(rowId, columnId)
+                }
+            }
         }
     }
 

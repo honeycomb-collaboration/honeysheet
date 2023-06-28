@@ -30,12 +30,13 @@ export const websocket: WebSocketHandler<ContextData> = {
         }
         try {
             const action = JSON.parse(message as string) satisfies Action
-            const resultAction = handleAction(ws, action)
-            ws.publish(topic, JSON.stringify(resultAction))
+            const [res, brod] = handleAction(ws, action)
+            console.log(message, res, brod)
+            ws.publish(topic, JSON.stringify(brod))
+            ws.sendText(JSON.stringify(res))
             return
         } catch (error) {
             console.error('not a valid action', error)
         }
-        console.log(message)
     },
 }

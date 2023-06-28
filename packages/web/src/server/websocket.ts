@@ -1,15 +1,15 @@
 import { IConnection, workerWrap } from '@honeysheet/connection'
 import workerUrl from '@honeysheet/connection/sharedworker?url'
-import { Action } from '@honeysheet/shared'
+import type { ActionBroadcast, ActionResponse } from '@honeysheet/shared/action'
 
-export type ActionHandler = (action: Action) => unknown
+export type ActionHandler = (action: ActionResponse | ActionBroadcast) => unknown
 
 export function getConnection(serverHost: string, handler: ActionHandler): IConnection {
     const websocketUrl = `ws://${serverHost}/api/v1/ws`
     const ConnectionInsideWorker = workerWrap(workerUrl)
     const connection: IConnection = new ConnectionInsideWorker(websocketUrl, (message: string) => {
         console.info(`${new Date().toLocaleTimeString()}\t${message}`)
-        handler(JSON.parse(message) satisfies Action)
+        handler(JSON.parse(message) satisfies ActionResponse | ActionBroadcast)
     })
 
     // function sayHello() {

@@ -1,6 +1,13 @@
 import { generateIds, validDataId } from './dataId'
 import type { ColumnId, RowId, SheetId } from './core'
-import { type Action, type ActionResponse, ActionType } from './action'
+import {
+    type Action,
+    type ActionResponse,
+    type ActionBroadcast,
+    ActionType,
+    RESPONSE_HEAD,
+    BROADCAST_HEAD,
+} from './action'
 
 export interface WorkbookDTO {
     id: string
@@ -26,5 +33,5 @@ export interface CellDTO {
 
 export type CellRecordDTO = { cell: CellDTO; rowId: RowId; columnId: ColumnId }
 
-export { validDataId, generateIds, ActionType }
-export type { ColumnId, RowId, SheetId, Action }
+export { validDataId, generateIds, ActionType, RESPONSE_HEAD, BROADCAST_HEAD }
+export type { ColumnId, RowId, SheetId, Action, ActionResponse, ActionBroadcast }
