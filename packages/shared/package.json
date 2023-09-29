@@ -9,6 +9,6 @@
   "author": "Naeemo <naeemo@qq.com>",
   "license": "MIT",
   "devDependencies": {
-    "vitest": "^0.32.0"
+    "vitest": "^0.34.6"
   }
 }
